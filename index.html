@@ -745,6 +745,8 @@ window.handlePresChange = async (k, el, type) => {
     await setDoc(doc(db, 'data', 'presentations'), presentations);
   } catch(e) {}
 };
+
+function getAllProducts() {
   const list = [];
   PROVIDERS.forEach(p => {
     p.products.forEach((prod, i) => {
@@ -1137,6 +1139,18 @@ function updateSummaryBar(){
 }
 
 // PRECIOS
+function calcCostoBase(precio, qty, unit) {
+  const n = parseFloat(precio), q = parseFloat(qty);
+  if (!n || !q) return null;
+  const pBase = n / q;
+  if (unit === 'kg') return `$${Math.round(pBase).toLocaleString('es-AR')}/kg`;
+  if (unit === 'g')  return `$${(pBase*1000).toFixed(0)}/kg`;
+  if (unit === 'L')  return `$${Math.round(pBase).toLocaleString('es-AR')}/L`;
+  if (unit === 'ml') return `$${(pBase*1000).toFixed(0)}/L`;
+  if (unit === 'u')  return `$${Math.round(pBase).toLocaleString('es-AR')}/u`;
+  return null;
+}
+
 function buildPreciosGrid(){
   const grid=document.getElementById('preciosGrid');
   grid.innerHTML='';
@@ -1195,17 +1209,6 @@ function renderPrecioRow(pid, provName, prod, i){
   </div>`;
 }
 
-function calcCostoBase(precio, qty, unit) {
-  const n = parseFloat(precio), q = parseFloat(qty);
-  if (!n || !q) return null;
-  const pBase = n / q;
-  if (unit === 'kg') return `$${Math.round(pBase).toLocaleString('es-AR')}/kg`;
-  if (unit === 'g')  return `$${(pBase*1000).toFixed(0)}/kg`;
-  if (unit === 'L')  return `$${Math.round(pBase).toLocaleString('es-AR')}/L`;
-  if (unit === 'ml') return `$${(pBase*1000).toFixed(0)}/L`;
-  if (unit === 'u')  return `$${Math.round(pBase).toLocaleString('es-AR')}/u`;
-  return null;
-}
 
 window.toggleAddInsumo=(pid)=>{
   const form=document.getElementById(`form-${pid}`);
