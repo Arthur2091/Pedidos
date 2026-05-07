@@ -157,6 +157,72 @@
   .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 300; pointer-events: none; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* RECETAS */
+  #viewRecetas { display: none; }
+  .rec-container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+  .rec-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .rec-title { font-size: 18px; font-weight: 600; }
+  .rec-sub { font-size: 13px; color: var(--ink2); margin-top: 2px; }
+  .btn-nueva-receta { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 8px; border: none; background: var(--ink); color: #fff; cursor: pointer; transition: all 0.15s; }
+  .btn-nueva-receta:hover { background: #333; }
+  .recetas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .receta-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+  .receta-card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .receta-card-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; }
+  .receta-card-meta { font-size: 11px; color: var(--ink3); margin-top: 3px; font-family: 'DM Mono', monospace; }
+  .receta-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .btn-edit-rec { font-size: 13px; background: none; border: none; cursor: pointer; color: var(--ink3); padding: 3px 6px; border-radius: 6px; transition: all 0.15s; }
+  .btn-edit-rec:hover { background: var(--surface2); color: var(--ink); }
+  .btn-del-rec { font-size: 13px; background: none; border: none; cursor: pointer; color: var(--ink3); padding: 3px 6px; border-radius: 6px; transition: all 0.15s; }
+  .btn-del-rec:hover { background: #FEE2E2; color: #B91C1C; }
+  .receta-ing-list { padding: 6px 0; }
+  .receta-ing-row { display: flex; align-items: center; gap: 8px; padding: 6px 18px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .receta-ing-row:last-child { border-bottom: none; }
+  .receta-ing-name { flex: 1; color: var(--ink); }
+  .receta-ing-qty { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink2); min-width: 60px; text-align: right; }
+  .receta-ing-costo { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); min-width: 70px; text-align: right; font-weight: 500; }
+  .receta-ing-sin-precio { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink3); min-width: 70px; text-align: right; font-style: italic; }
+  .receta-footer { padding: 12px 18px; background: var(--surface2); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; border-top: 1px solid var(--border); }
+  .receta-stat { text-align: center; }
+  .receta-stat-label { font-size: 10px; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+  .receta-stat-value { font-size: 15px; font-weight: 600; font-family: 'DM Mono', monospace; margin-top: 2px; letter-spacing: -0.5px; }
+  .receta-stat-value.costo { color: var(--ink); }
+  .receta-stat-value.venta { color: var(--accent); }
+  .receta-stat-value.ganancia { color: #1D4ED8; }
+
+  /* MODAL RECETA */
+  .rec-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+  .rec-modal-overlay.open { display: flex; }
+  .rec-modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 620px; max-height: 90vh; display: flex; flex-direction: column; animation: slideUp 0.25s ease; overflow: hidden; }
+  .rec-modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .rec-modal-title { font-size: 16px; font-weight: 600; }
+  .rec-modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+  .rec-field-label { font-size: 12px; font-weight: 600; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .rec-field-input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; }
+  .rec-field-input:focus { border-color: var(--accent); background: #fff; }
+  .rec-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rec-ing-list { display: flex; flex-direction: column; gap: 8px; }
+  .rec-ing-item { display: grid; grid-template-columns: 2fr 80px 90px auto; gap: 8px; align-items: center; background: var(--surface2); border-radius: 8px; padding: 8px 12px; }
+  .rec-ing-sel { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); outline: none; cursor: pointer; width: 100%; }
+  .rec-ing-qty-inp { font-family: 'DM Mono', monospace; font-size: 13px; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); outline: none; text-align: right; width: 100%; -moz-appearance: textfield; }
+  .rec-ing-qty-inp::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .rec-ing-unit-sel { font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 6px 6px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); outline: none; cursor: pointer; width: 100%; }
+  .btn-del-ing { background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 16px; padding: 2px; border-radius: 4px; transition: all 0.15s; }
+  .btn-del-ing:hover { color: #B91C1C; background: #FEE2E2; }
+  .btn-add-ing { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 14px; border-radius: 8px; border: 1.5px dashed var(--border); background: transparent; color: var(--ink2); cursor: pointer; width: 100%; transition: all 0.15s; }
+  .btn-add-ing:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .rec-preview { background: var(--surface2); border-radius: 10px; padding: 14px 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .rec-prev-item { text-align: center; }
+  .rec-prev-label { font-size: 10px; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+  .rec-prev-val { font-size: 18px; font-weight: 600; font-family: 'DM Mono', monospace; margin-top: 2px; }
+  .rec-modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+  .btn-save-rec { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; padding: 12px; border-radius: 10px; border: none; background: var(--accent); color: #fff; cursor: pointer; transition: background 0.15s; }
+  .btn-save-rec:hover { background: #235c42; }
+  .btn-cancel-rec { font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 12px 20px; border-radius: 10px; border: 1.5px solid var(--border); background: transparent; color: var(--ink2); cursor: pointer; transition: all 0.15s; }
+  .btn-cancel-rec:hover { background: var(--surface2); }
+  .rec-empty { padding: 60px; text-align: center; color: var(--ink3); font-size: 14px; grid-column: 1/-1; }
+  .rec-empty-icon { font-size: 40px; margin-bottom: 12px; }
+
   @media (max-width: 600px) {
     main, .precios-grid { grid-template-columns: 1fr; padding: 12px 10px; }
     .nav-tab span { display: none; }
@@ -175,6 +241,7 @@
       <button class="nav-tab active" data-view="pedidos" onclick="switchView('pedidos')">📋 <span>Pedidos</span></button>
       <button class="nav-tab" data-view="precios" onclick="switchView('precios')">💲 <span>Precios</span></button>
       <button class="nav-tab" data-view="historial" onclick="switchView('historial')">🕒 <span>Historial</span></button>
+      <button class="nav-tab" data-view="recetas" onclick="switchView('recetas')">👨‍🍳 <span>Recetas</span></button>
     </nav>
   </div>
   <span class="header-date" id="fecha-hdr"></span>
@@ -268,6 +335,72 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- RECETAS VIEW -->
+<div id="viewRecetas">
+  <div class="rec-container">
+    <div class="rec-top">
+      <div>
+        <div class="rec-title">👨‍🍳 Recetas</div>
+        <div class="rec-sub">Calculá el costo y precio de venta de cada preparación</div>
+      </div>
+      <button class="btn-nueva-receta" onclick="abrirModalReceta()">+ Nueva receta</button>
+    </div>
+    <div class="recetas-grid" id="recetasGrid"></div>
+  </div>
+</div>
+
+<!-- MODAL RECETA -->
+<div class="rec-modal-overlay" id="recModalOverlay" onclick="cerrarModalReceta(event)">
+  <div class="rec-modal">
+    <div class="rec-modal-header">
+      <span class="rec-modal-title" id="recModalTitle">Nueva receta</span>
+      <button class="modal-close" onclick="cerrarModalReceta()">×</button>
+    </div>
+    <div class="rec-modal-body">
+      <div>
+        <div class="rec-field-label">Nombre de la receta</div>
+        <input class="rec-field-input" id="recNombre" type="text" placeholder="Ej: Torta Bruce">
+      </div>
+      <div class="rec-row2">
+        <div>
+          <div class="rec-field-label">Porciones / unidades</div>
+          <input class="rec-field-input" id="recPorciones" type="number" min="1" placeholder="Ej: 10" oninput="calcPreview()">
+        </div>
+        <div>
+          <div class="rec-field-label">Margen de ganancia %</div>
+          <input class="rec-field-input" id="recMargen" type="number" min="0" placeholder="Ej: 150" oninput="calcPreview()">
+        </div>
+      </div>
+      <div>
+        <div class="rec-field-label">Ingredientes</div>
+        <div class="rec-ing-list" id="recIngList"></div>
+        <button class="btn-add-ing" onclick="agregarIngrediente()">＋ Agregar ingrediente</button>
+      </div>
+      <div>
+        <div class="rec-field-label">Vista previa de costos</div>
+        <div class="rec-preview">
+          <div class="rec-prev-item">
+            <div class="rec-prev-label">Costo total</div>
+            <div class="rec-prev-val" id="prevCostoTotal" style="color:var(--ink)">$—</div>
+          </div>
+          <div class="rec-prev-item">
+            <div class="rec-prev-label">Costo por porción</div>
+            <div class="rec-prev-val" id="prevCostoPorcion" style="color:var(--ink2)">$—</div>
+          </div>
+          <div class="rec-prev-item">
+            <div class="rec-prev-label">Precio de venta</div>
+            <div class="rec-prev-val" id="prevVenta" style="color:var(--accent)">$—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rec-modal-footer">
+      <button class="btn-cancel-rec" onclick="cerrarModalReceta()">Cancelar</button>
+      <button class="btn-save-rec" onclick="guardarReceta()">Guardar receta</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -323,7 +456,234 @@ function fmtPrice(p) { return p?`$${Number(p).toLocaleString('es-AR')}`:'—'; }
 function key(pid,idx) { return `${pid}_${idx}`; }
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
 
-// Load data from Firebase
+// ── RECETAS ──
+let recetas = [];
+let editingRecetaId = null;
+
+const UNIDADES = ['g','kg','ml','L','u','cdita','cda','taza'];
+const UNIDAD_A_BASE = { g:1, kg:1000, ml:1, L:1000, u:1, cdita:5, cda:15, taza:240 };
+// Precio en Firebase es por: g→kg(1000g), ml→L(1000ml), u→u(1)
+const PRECIO_BASE = { g:'kg', kg:'kg', ml:'L', L:'L', u:'u', cdita:'ml', cda:'ml', taza:'ml' };
+const PRECIO_FACTOR = { g:1000, kg:1, ml:1000, L:1, u:1, cdita:1000, cda:1000, taza:1000 };
+
+// Build flat list of all products with their keys
+function getAllProducts() {
+  const list = [];
+  PROVIDERS.forEach(p => {
+    p.products.forEach((prod, i) => {
+      list.push({ label:`${prod} (${p.name})`, pid: p.id, idx: i, name: prod, provName: p.name });
+    });
+  });
+  return list.sort((a,b) => a.name.localeCompare(b.name));
+}
+
+function calcCostoIngrediente(pid, idx, cantidad, unidad) {
+  const k = key(pid, idx);
+  const precioFirebase = prices[k]; // precio por kg o por L o por unidad según lo que se cargó
+  if (!precioFirebase) return null;
+  // Convert cantidad to base unit (g→kg, ml→L, u→u)
+  const factorToBase = UNIDAD_A_BASE[unidad] || 1;
+  const cantidadEnBase = cantidad * factorToBase;
+  const precioBase = PRECIO_FACTOR[unidad] || 1;
+  return (precioFirebase / precioBase) * cantidadEnBase;
+}
+
+function fmtPrecio(n) {
+  if (n === null || isNaN(n)) return '—';
+  return '$' + Math.round(n).toLocaleString('es-AR');
+}
+
+// ── MODAL ──
+window.abrirModalReceta = (id = null) => {
+  editingRecetaId = id;
+  const rec = id ? recetas.find(r => r.id === id) : null;
+  document.getElementById('recModalTitle').textContent = rec ? 'Editar receta' : 'Nueva receta';
+  document.getElementById('recNombre').value = rec?.nombre || '';
+  document.getElementById('recPorciones').value = rec?.porciones || '';
+  document.getElementById('recMargen').value = rec?.margen || '';
+  document.getElementById('recIngList').innerHTML = '';
+  if (rec?.ingredientes?.length) {
+    rec.ingredientes.forEach(ing => agregarIngrediente(ing));
+  } else {
+    agregarIngrediente();
+  }
+  calcPreview();
+  document.getElementById('recModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.cerrarModalReceta = (e) => {
+  if (e && e.target !== document.getElementById('recModalOverlay')) return;
+  document.getElementById('recModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+window.agregarIngrediente = (ing = null) => {
+  const allProds = getAllProducts();
+  const list = document.getElementById('recIngList');
+  const div = document.createElement('div');
+  div.className = 'rec-ing-item';
+  const selOpts = allProds.map(p =>
+    `<option value="${p.pid}|${p.idx}" ${ing && ing.pid===p.pid && ing.idx===p.idx ? 'selected' : ''}>${p.label}</option>`
+  ).join('');
+  const unitOpts = UNIDADES.map(u =>
+    `<option value="${u}" ${ing?.unidad===u ? 'selected' : ''}>${u}</option>`
+  ).join('');
+  div.innerHTML = `
+    <select class="rec-ing-sel" onchange="calcPreview()">
+      <option value="">— Seleccioná insumo —</option>
+      ${selOpts}
+    </select>
+    <input class="rec-ing-qty-inp" type="number" min="0" step="any" placeholder="Cant." value="${ing?.cantidad||''}" oninput="calcPreview()">
+    <select class="rec-ing-unit-sel" onchange="calcPreview()">${unitOpts}</select>
+    <button class="btn-del-ing" onclick="this.parentElement.remove();calcPreview()">✕</button>`;
+  list.appendChild(div);
+  calcPreview();
+};
+
+window.calcPreview = () => {
+  const items = document.querySelectorAll('#recIngList .rec-ing-item');
+  const porciones = parseFloat(document.getElementById('recPorciones').value) || 1;
+  const margen = parseFloat(document.getElementById('recMargen').value) || 0;
+  let costoTotal = 0;
+  let hayIncompleto = false;
+  items.forEach(item => {
+    const sel = item.querySelector('.rec-ing-sel').value;
+    const cant = parseFloat(item.querySelector('.rec-ing-qty-inp').value);
+    const unidad = item.querySelector('.rec-ing-unit-sel').value;
+    if (!sel || !cant) return;
+    const [pid, idx] = sel.split('|');
+    const costo = calcCostoIngrediente(pid, parseInt(idx), cant, unidad);
+    if (costo === null) { hayIncompleto = true; return; }
+    costoTotal += costo;
+  });
+  const costoPorcion = costoTotal / porciones;
+  const precioVenta = costoPorcion * (1 + margen / 100);
+  document.getElementById('prevCostoTotal').textContent = fmtPrecio(costoTotal);
+  document.getElementById('prevCostoPorcion').textContent = fmtPrecio(costoPorcion);
+  document.getElementById('prevVenta').textContent = fmtPrecio(precioVenta);
+};
+
+window.guardarReceta = async () => {
+  const nombre = document.getElementById('recNombre').value.trim();
+  const porciones = parseFloat(document.getElementById('recPorciones').value);
+  const margen = parseFloat(document.getElementById('recMargen').value) || 0;
+  if (!nombre) { showToast('⚠ Ingresá un nombre'); return; }
+  if (!porciones || porciones < 1) { showToast('⚠ Ingresá las porciones'); return; }
+
+  const items = document.querySelectorAll('#recIngList .rec-ing-item');
+  const ingredientes = [];
+  items.forEach(item => {
+    const sel = item.querySelector('.rec-ing-sel').value;
+    const cant = parseFloat(item.querySelector('.rec-ing-qty-inp').value);
+    const unidad = item.querySelector('.rec-ing-unit-sel').value;
+    if (!sel || !cant) return;
+    const [pid, idx] = sel.split('|');
+    const prod = PROVIDERS.find(p=>p.id===pid);
+    ingredientes.push({ pid, idx: parseInt(idx), cantidad: cant, unidad, nombre: prod?.products[parseInt(idx)] || '', provName: prod?.name || '' });
+  });
+
+  if (!ingredientes.length) { showToast('⚠ Agregá al menos un ingrediente'); return; }
+
+  const receta = { nombre, porciones, margen, ingredientes, updatedAt: Date.now() };
+
+  try {
+    if (editingRecetaId) {
+      await setDoc(doc(db,'recetas', editingRecetaId), receta);
+      receta.id = editingRecetaId;
+      const i = recetas.findIndex(r=>r.id===editingRecetaId);
+      if (i>=0) recetas[i] = receta;
+    } else {
+      const ref = await addDoc(collection(db,'recetas'), receta);
+      receta.id = ref.id;
+      recetas.push(receta);
+    }
+  } catch(e) {
+    receta.id = editingRecetaId || Date.now().toString();
+    if (!editingRecetaId) recetas.push(receta);
+    else { const i=recetas.findIndex(r=>r.id===editingRecetaId); if(i>=0) recetas[i]=receta; }
+  }
+
+  document.getElementById('recModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  showToast(`✓ Receta "${nombre}" guardada`);
+  renderRecetas();
+};
+
+window.eliminarReceta = async (id) => {
+  const rec = recetas.find(r=>r.id===id);
+  if (!confirm(`¿Eliminar la receta "${rec?.nombre}"?`)) return;
+  try {
+    const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    await deleteDoc(doc(db,'recetas',id));
+  } catch(e) {}
+  recetas = recetas.filter(r=>r.id!==id);
+  showToast('✓ Receta eliminada');
+  renderRecetas();
+};
+
+async function loadRecetas() {
+  try {
+    const snap = await getDocs(collection(db,'recetas'));
+    recetas = snap.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(e) { recetas = []; }
+}
+
+window.renderRecetas = () => {
+  const grid = document.getElementById('recetasGrid');
+  if (!recetas.length) {
+    grid.innerHTML = `<div class="rec-empty"><div class="rec-empty-icon">👨‍🍳</div>No hay recetas todavía.<br>Creá la primera con el botón de arriba.</div>`;
+    return;
+  }
+  grid.innerHTML = recetas.map(rec => {
+    let costoTotal = 0;
+    let algunSinPrecio = false;
+    const ingRows = rec.ingredientes.map(ing => {
+      const costo = calcCostoIngrediente(ing.pid, ing.idx, ing.cantidad, ing.unidad);
+      if (costo === null) { algunSinPrecio = true; }
+      else costoTotal += costo;
+      return `<div class="receta-ing-row">
+        <span class="receta-ing-name">${ing.nombre}</span>
+        <span class="receta-ing-qty">${ing.cantidad} ${ing.unidad}</span>
+        ${costo !== null
+          ? `<span class="receta-ing-costo">${fmtPrecio(costo)}</span>`
+          : `<span class="receta-ing-sin-precio">sin precio</span>`}
+      </div>`;
+    }).join('');
+    const costoPorcion = costoTotal / (rec.porciones || 1);
+    const precioVenta = costoPorcion * (1 + (rec.margen||0) / 100);
+    const ganancia = precioVenta - costoPorcion;
+    return `<div class="receta-card">
+      <div class="receta-card-header">
+        <div>
+          <div class="receta-card-title">${rec.nombre}</div>
+          <div class="receta-card-meta">${rec.porciones} porción${rec.porciones!==1?'es':''} · ${rec.margen||0}% margen${algunSinPrecio?' · ⚠ faltan precios':''}</div>
+        </div>
+        <div class="receta-actions">
+          <button class="btn-edit-rec" onclick="abrirModalReceta('${rec.id}')" title="Editar">✏️</button>
+          <button class="btn-del-rec" onclick="eliminarReceta('${rec.id}')" title="Eliminar">🗑</button>
+        </div>
+      </div>
+      <div class="receta-ing-list">${ingRows}</div>
+      <div class="receta-footer">
+        <div class="receta-stat">
+          <div class="receta-stat-label">Costo/porción</div>
+          <div class="receta-stat-value costo">${fmtPrecio(costoPorcion)}</div>
+        </div>
+        <div class="receta-stat">
+          <div class="receta-stat-label">Ganancia</div>
+          <div class="receta-stat-value ganancia">${fmtPrecio(ganancia)}</div>
+        </div>
+        <div class="receta-stat">
+          <div class="receta-stat-label">Precio venta</div>
+          <div class="receta-stat-value venta">${fmtPrecio(precioVenta)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+};
+
+
 async function init() {
   try {
     const snap = await getDoc(doc(db,'data','prices'));
@@ -332,6 +692,7 @@ async function init() {
     const hsnap = await getDocs(q);
     historial = hsnap.docs.map(d=>({id:d.id,...d.data()}));
     await loadCustomProducts();
+    await loadRecetas();
   } catch(e) { console.warn('Firebase offline, using local mode'); }
   buildFilterBar();
   buildCards();
@@ -345,8 +706,10 @@ window.switchView = (view) => {
   document.getElementById('viewPedidos').style.display  = view==='pedidos'  ?'block':'none';
   document.getElementById('viewPrecios').style.display  = view==='precios'  ?'block':'none';
   document.getElementById('viewHistorial').style.display= view==='historial'?'block':'none';
+  document.getElementById('viewRecetas').style.display  = view==='recetas'  ?'block':'none';
   document.getElementById('summaryBar').style.display   = view==='pedidos'  ?''    :'none';
   if(view==='historial') renderHistorial();
+  if(view==='recetas') renderRecetas();
 };
 
 // FILTER BAR
