@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carga de Precios — Quintela</title>
+<style>
+  body { font-family: sans-serif; background: #F7F5F0; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .card { background: #fff; border-radius: 16px; padding: 32px; max-width: 500px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  h2 { font-size: 18px; margin-bottom: 6px; }
+  p { font-size: 13px; color: #666; margin-bottom: 24px; }
+  .btn { width: 100%; font-size: 15px; font-weight: 600; padding: 14px; border-radius: 10px; border: none; background: #1A1814; color: #fff; cursor: pointer; transition: background 0.15s; }
+  .btn:hover { background: #333; }
+  .btn:disabled { background: #aaa; cursor: default; }
+  .log { margin-top: 20px; background: #F0EDE8; border-radius: 10px; padding: 14px; font-size: 12px; font-family: monospace; max-height: 260px; overflow-y: auto; line-height: 1.8; }
+  .ok { color: #2D6A4F; } .skip { color: #999; } .err { color: #C2410C; }
+  .done { margin-top: 16px; background: #D8F3DC; border-radius: 10px; padding: 14px; font-size: 13px; font-weight: 600; color: #2D6A4F; display: none; text-align: center; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>🛒 Carga de precios — Quintela</h2>
+  <p>Cargará <strong>11 precios</strong> en Firebase. Los productos sin precio se omiten. Esta página se usa una sola vez y podés cerrarla después.</p>
+  <button class="btn" id="btn" onclick="cargar()">Cargar precios en Firebase</button>
+  <div class="log" id="log" style="display:none"></div>
+  <div class="done" id="done">✅ Precios cargados correctamente. Podés cerrar esta página.</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC_dkvixcRfzRMxXTAAxjcDuhbsMajApxI",
+  authDomain: "arthur-sistema-pedidos.firebaseapp.com",
+  projectId: "arthur-sistema-pedidos",
+  storageBucket: "arthur-sistema-pedidos.firebasestorage.app",
+  messagingSenderId: "1039699696450",
+  appId: "1:1039699696450:web:f4af86b423eb1b2e8706db"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Precios Quintela: índice → precio (null = sin precio, se omite)
+const QUINTELA_PRICES = {
+  0:  null,   // Aceite girasol — sin precio
+  1:  41600,  // Anchoas
+  2:  null,   // Caldo Deshidratado — sin precio
+  3:  2100,   // Durazno en lata
+  4:  11296,  // Mayonesa Hellmans
+  5:  9347,   // Muzzarella
+  6:  9289,   // Mostaza
+  7:  6400,   // Pan rallado
+  8:  38700,  // Sal fina
+  9:  5700,   // Tomate perita
+  10: 2100,   // Vinagre x Litro
+  11: 32500,  // Cafe soluble instantaneo
+  12: null,   // Fritolin — sin precio
+  13: null,   // Maicena — sin precio
+  14: 3520,   // Polvo de hornear
+};
+
+const PRODUCT_NAMES = ["Aceite girasol","Anchoas","Caldo Deshidratado","Durazno en lata","Mayonesa Hellmans","Muzzarella","Mostaza","Pan rallado","Sal fina","Tomate perita","Vinagre x Litro","Cafe soluble instantaneo","Fritolin","Maicena","Polvo de hornear"];
+
+function log(msg, cls='') {
+  const el = document.getElementById('log');
+  el.style.display = 'block';
+  el.innerHTML += `<div class="${cls}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+window.cargar = async () => {
+  const btn = document.getElementById('btn');
+  btn.disabled = true;
+  btn.textContent = 'Conectando con Google...';
+
+  try {
+    // Login
+    const provider = new GoogleAuthProvider();
+    const cred = await signInWithPopup(auth, provider);
+    const user = cred.user;
+    log(`✓ Conectado como ${user.email}`, 'ok');
+    btn.textContent = 'Cargando precios...';
+
+    // Load existing prices
+    const snap = await getDoc(doc(db, 'data', 'prices'));
+    const prices = snap.exists() ? snap.data() : {};
+
+    let loaded = 0, skipped = 0;
+    for (const [idx, price] of Object.entries(QUINTELA_PRICES)) {
+      const key = `quintela_${idx}`;
+      const name = PRODUCT_NAMES[idx];
+      if (price === null) {
+        log(`⊘ ${name} — sin precio, omitido`, 'skip');
+        skipped++;
+        continue;
+      }
+      const oldPrice = prices[key] || null;
+      prices[key] = price;
+      // Log to historial
+      await addDoc(collection(db, 'historial'), {
+        key, provName: 'Quintela', prodName: name,
+        oldPrice, newPrice: price,
+        userEmail: user.email,
+        userName: user.displayName || user.email,
+        timestamp: serverTimestamp(),
+      });
+      log(`✓ ${name}: $${price.toLocaleString('es-AR')}`, 'ok');
+      loaded++;
+    }
+
+    // Save all prices at once
+    await setDoc(doc(db, 'data', 'prices'), prices);
+    log(`\n✓ ${loaded} precios guardados, ${skipped} omitidos.`, 'ok');
+    document.getElementById('done').style.display = 'block';
+    btn.textContent = '✅ Listo';
+  } catch(e) {
+    log(`✗ Error: ${e.message}`, 'err');
+    btn.disabled = false;
+    btn.textContent = 'Reintentar';
+  }
+};
+</script>
+</body>
+</html>
