@@ -106,16 +106,26 @@
   .precio-card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .precio-card-title { font-size: 14px; font-weight: 600; }
   .precio-card-meta { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; }
-  .precio-row { display: flex; align-items: center; gap: 10px; padding: 8px 18px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .precio-row { display: flex; flex-direction: column; padding: 10px 18px; border-bottom: 1px solid var(--border); transition: background 0.1s; gap: 6px; }
   .precio-row:last-child { border-bottom: none; }
   .precio-row:hover { background: var(--surface2); }
   .precio-row:hover .btn-remove-insumo { opacity: 1; }
-  .precio-prod-name { flex: 1; font-size: 13px; color: var(--ink); }
+  .precio-row:hover .btn-edit-insumo { opacity: 1; }
+  .precio-row-top { display: flex; align-items: center; gap: 8px; }
+  .precio-row-bottom { display: flex; align-items: center; gap: 6px; padding-left: 2px; }
+  .precio-prod-name { flex: 1; font-size: 13px; color: var(--ink); font-weight: 500; }
   .precio-hist-btn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--ink3); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .precio-hist-btn:hover { background: var(--info-light); color: var(--info); border-color: var(--info); }
   .precio-input { width: 90px; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; text-align: right; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; -moz-appearance: textfield; }
   .precio-input::-webkit-inner-spin-button, .precio-input::-webkit-outer-spin-button { -webkit-appearance: none; }
   .precio-input:focus { border-color: var(--accent); background: #fff; }
+  .pres-label { font-size: 11px; color: var(--ink3); }
+  .pres-qty-inp { width: 60px; font-family: 'DM Mono', monospace; font-size: 12px; padding: 4px 6px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; -moz-appearance: textfield; text-align: center; }
+  .pres-qty-inp::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .pres-qty-inp:focus { border-color: var(--accent); background: #fff; }
+  .pres-unit-sel { font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 4px 6px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--ink); outline: none; cursor: pointer; }
+  .pres-unit-sel:focus { border-color: var(--accent); }
+  .pres-costo-base { font-size: 11px; color: var(--accent); font-family: 'DM Mono', monospace; margin-left: 4px; }
   .btn-remove-insumo { font-size: 14px; background: none; border: none; cursor: pointer; color: var(--ink3); opacity: 0; transition: all 0.15s; padding: 2px 4px; border-radius: 4px; line-height: 1; flex-shrink: 0; }
   .btn-remove-insumo:hover { color: #B91C1C; background: #FEE2E2; opacity: 1; }
   .btn-add-insumo { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 9px 18px; border: none; border-top: 1px solid var(--border); background: transparent; color: var(--ink2); cursor: pointer; text-align: left; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
@@ -681,11 +691,61 @@ let editingRecetaId = null;
 
 const UNIDADES = ['g','kg','ml','L','u','cdita','cda','taza'];
 const UNIDAD_A_BASE = { g:1, kg:1000, ml:1, L:1000, u:1, cdita:5, cda:15, taza:240 };
-// Precio en Firebase es por: g→kg(1000g), ml→L(1000ml), u→u(1)
-const PRECIO_BASE = { g:'kg', kg:'kg', ml:'L', L:'L', u:'u', cdita:'ml', cda:'ml', taza:'ml' };
-const PRECIO_FACTOR = { g:1000, kg:1, ml:1000, L:1, u:1, cdita:1000, cda:1000, taza:1000 };
 
-// Build flat list of all products with their keys
+// presentations: { "pid_idx": { qty, unit } }
+let presentations = {};
+
+function calcCostoIngrediente(pid, idx, cantidad, unidad) {
+  const k = key(pid, idx);
+  const precio = prices[k];
+  const pres = presentations[k];
+  if (!precio || !pres || !pres.qty || !pres.unit) return null;
+
+  const presQty = parseFloat(pres.qty);
+  const presUnit = pres.unit; // kg, g, L, ml, u
+
+  // Normalize everything to base units (g or ml or u)
+  const BASE = { kg: 1000, g: 1, L: 1000, ml: 1, u: 1 };
+  const presEnBase = presQty * (BASE[presUnit] || 1);
+  const cantEnBase = cantidad * (UNIDAD_A_BASE[unidad] || 1);
+
+  // Check compatible types
+  const isWeight = ['kg','g'].includes(presUnit) && ['g','kg','cdita','cda','taza'].includes(unidad) === false;
+  const isVolume = ['L','ml'].includes(presUnit);
+  const isUnit = presUnit === 'u';
+
+  // Allow cross-compatible: weight recipe unit with weight pres, volume with volume, u with u
+  const recipeBase = ['g','kg'].includes(unidad) ? 'weight' : ['ml','L','cdita','cda','taza'].includes(unidad) ? 'volume' : 'unit';
+  const presBase = ['g','kg'].includes(presUnit) ? 'weight' : ['ml','L'].includes(presUnit) ? 'volume' : 'unit';
+
+  if (recipeBase !== presBase) return null; // incompatible units
+
+  const precioBase = precio / presEnBase; // price per g, per ml, or per u
+  return precioBase * cantEnBase;
+}
+
+window.handlePresChange = async (k, el, type) => {
+  const row = document.getElementById(`prow-${k}`);
+  if (!row) return;
+  const qtyInp = row.querySelector('.pres-qty-inp');
+  const unitSel = row.querySelector('.pres-unit-sel');
+  const qty = parseFloat(qtyInp.value);
+  const unit = unitSel.value;
+  presentations[k] = { qty: qty || 0, unit };
+  // Update cost base display
+  const priceInp = row.querySelector('.precio-input');
+  const precio = parseFloat(priceInp.value);
+  const cbaseEl = document.getElementById(`cbase-${k}`);
+  if (cbaseEl) {
+    const cb = calcCostoBase(precio, qty, unit);
+    cbaseEl.textContent = cb || '';
+  }
+  // Save to Firebase
+  try {
+    await setDoc(doc(db, 'data', 'presentations'), presentations);
+  } catch(e) {}
+};
+
 function getAllProducts() {
   const list = [];
   PROVIDERS.forEach(p => {
@@ -694,17 +754,6 @@ function getAllProducts() {
     });
   });
   return list.sort((a,b) => a.name.localeCompare(b.name));
-}
-
-function calcCostoIngrediente(pid, idx, cantidad, unidad) {
-  const k = key(pid, idx);
-  const precioFirebase = prices[k]; // precio por kg o por L o por unidad según lo que se cargó
-  if (!precioFirebase) return null;
-  // Convert cantidad to base unit (g→kg, ml→L, u→u)
-  const factorToBase = UNIDAD_A_BASE[unidad] || 1;
-  const cantidadEnBase = cantidad * factorToBase;
-  const precioBase = PRECIO_FACTOR[unidad] || 1;
-  return (precioFirebase / precioBase) * cantidadEnBase;
 }
 
 function fmtPrecio(n) {
@@ -907,6 +956,8 @@ async function init() {
   try {
     const snap = await getDoc(doc(db,'data','prices'));
     if (snap.exists()) prices = snap.data();
+    const psnap = await getDoc(doc(db,'data','presentations'));
+    if (psnap.exists()) presentations = psnap.data();
     const q = query(collection(db,'historial'), orderBy('timestamp','desc'));
     const hsnap = await getDocs(q);
     historial = hsnap.docs.map(d=>({id:d.id,...d.data()}));
@@ -1088,6 +1139,18 @@ function updateSummaryBar(){
 }
 
 // PRECIOS
+function calcCostoBase(precio, qty, unit) {
+  const n = parseFloat(precio), q = parseFloat(qty);
+  if (!n || !q) return null;
+  const pBase = n / q;
+  if (unit === 'kg') return `$${Math.round(pBase).toLocaleString('es-AR')}/kg`;
+  if (unit === 'g')  return `$${(pBase*1000).toFixed(0)}/kg`;
+  if (unit === 'L')  return `$${Math.round(pBase).toLocaleString('es-AR')}/L`;
+  if (unit === 'ml') return `$${(pBase*1000).toFixed(0)}/L`;
+  if (unit === 'u')  return `$${Math.round(pBase).toLocaleString('es-AR')}/u`;
+  return null;
+}
+
 function buildPreciosGrid(){
   const grid=document.getElementById('preciosGrid');
   grid.innerHTML='';
@@ -1117,18 +1180,35 @@ function buildPreciosGrid(){
 }
 
 function renderPrecioRow(pid, provName, prod, i){
-  const k=key(pid,i);
-  return`<div class="precio-row" id="prow-${k}">
-    <span class="precio-prod-name" id="pname-${k}">${prod}</span>
-    <button class="btn-edit-insumo" onclick="editarNombreInsumo('${pid}',${i})" title="Renombrar">✏️</button>
-    <button class="precio-hist-btn" onclick="showProdHistorial('${k}','${prod}','${provName}')">Historial</button>
-    <input class="precio-input" type="number" min="0" placeholder="$0"
-      value="${prices[k]||''}"
-      onchange="handlePriceChange('${k}','${provName}','${prod}',this)"
-      onfocus="this.select()">
-    <button class="btn-remove-insumo" onclick="removeInsumo('${pid}',${i})" title="Quitar insumo">✕</button>
+  const k = key(pid, i);
+  const pr = prices[k] || '';
+  const pres = presentations[k] || {};
+  const presQty = pres.qty || '';
+  const presUnit = pres.unit || 'kg';
+  const costoBase = pr && presQty ? calcCostoBase(pr, presQty, presUnit) : null;
+  const UNITS = ['kg','g','L','ml','u'];
+  const unitOpts = UNITS.map(u => `<option value="${u}" ${presUnit===u?'selected':''}>${u}</option>`).join('');
+  return `<div class="precio-row" id="prow-${k}">
+    <div class="precio-row-top">
+      <span class="precio-prod-name" id="pname-${k}">${prod}</span>
+      <button class="btn-edit-insumo" onclick="editarNombreInsumo('${pid}',${i})" title="Renombrar">✏️</button>
+      <button class="precio-hist-btn" onclick="showProdHistorial('${k}','${prod}','${provName}')">Historial</button>
+      <input class="precio-input" type="number" min="0" placeholder="$0"
+        value="${pr}"
+        onchange="handlePriceChange('${k}','${provName}','${prod}',this)"
+        onfocus="this.select()">
+      <button class="btn-remove-insumo" onclick="removeInsumo('${pid}',${i})" title="Quitar">✕</button>
+    </div>
+    <div class="precio-row-bottom">
+      <span class="pres-label">Presentación:</span>
+      <input class="pres-qty-inp" type="number" min="0" step="any" placeholder="Cant." value="${presQty}"
+        onchange="handlePresChange('${k}',this,'unit')" onfocus="this.select()">
+      <select class="pres-unit-sel" onchange="handlePresChange('${k}',this,'sel')">${unitOpts}</select>
+      ${costoBase ? `<span class="pres-costo-base" id="cbase-${k}">= ${costoBase}</span>` : `<span class="pres-costo-base" id="cbase-${k}"></span>`}
+    </div>
   </div>`;
 }
+
 
 window.toggleAddInsumo=(pid)=>{
   const form=document.getElementById(`form-${pid}`);
@@ -1278,8 +1358,16 @@ window.handlePriceChange=async(k,provName,prodName,input)=>{
     await refreshHistorial();
   } catch(e){ console.warn('Firebase error',e); }
   // Update price in pedidos card
-  const ppEl=document.getElementById(`pp-${k.replace('_','-')}`);
+  const parts=k.split('_'); const pid=parts[0]; const idx=parts[1];
+  const ppEl=document.getElementById(`pp-${pid}-${idx}`);
   if(ppEl){ppEl.textContent=fmtPrice(newPrice);ppEl.classList.add('has-price');}
+  // Update costo base display
+  const pres=presentations[k];
+  if(pres?.qty){
+    const cb=calcCostoBase(newPrice,pres.qty,pres.unit);
+    const cbaseEl=document.getElementById(`cbase-${k}`);
+    if(cbaseEl) cbaseEl.textContent=cb||'';
+  }
   showToast('Precio guardado ✓');
 };
 
