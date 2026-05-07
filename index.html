@@ -87,12 +87,25 @@
   .precio-row { display: flex; align-items: center; gap: 10px; padding: 8px 18px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
   .precio-row:last-child { border-bottom: none; }
   .precio-row:hover { background: var(--surface2); }
+  .precio-row:hover .btn-remove-insumo { opacity: 1; }
   .precio-prod-name { flex: 1; font-size: 13px; color: var(--ink); }
   .precio-hist-btn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--ink3); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
   .precio-hist-btn:hover { background: var(--info-light); color: var(--info); border-color: var(--info); }
   .precio-input { width: 90px; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; text-align: right; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; -moz-appearance: textfield; }
   .precio-input::-webkit-inner-spin-button, .precio-input::-webkit-outer-spin-button { -webkit-appearance: none; }
   .precio-input:focus { border-color: var(--accent); background: #fff; }
+  .btn-remove-insumo { font-size: 14px; background: none; border: none; cursor: pointer; color: var(--ink3); opacity: 0; transition: all 0.15s; padding: 2px 4px; border-radius: 4px; line-height: 1; flex-shrink: 0; }
+  .btn-remove-insumo:hover { color: #B91C1C; background: #FEE2E2; opacity: 1; }
+  .btn-add-insumo { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 9px 18px; border: none; border-top: 1px solid var(--border); background: transparent; color: var(--ink2); cursor: pointer; text-align: left; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
+  .btn-add-insumo:hover { background: var(--accent-light); color: var(--accent); }
+  .add-insumo-form { padding: 10px 18px; border-top: 1px solid var(--border); display: none; gap: 8px; align-items: center; }
+  .add-insumo-form.open { display: flex; }
+  .add-insumo-input { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; }
+  .add-insumo-input:focus { border-color: var(--accent); background: #fff; }
+  .btn-confirm-insumo { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; white-space: nowrap; }
+  .btn-confirm-insumo:hover { background: #235c42; }
+  .btn-cancel-insumo { font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 7px 10px; border-radius: 8px; border: 1.5px solid var(--border); background: transparent; color: var(--ink2); cursor: pointer; }
+  .btn-cancel-insumo:hover { background: var(--surface2); }
 
   /* HISTORIAL */
   #viewHistorial { display: none; }
@@ -275,7 +288,7 @@ let prices = {};
 let historial = [];
 
 const PROVIDERS = [
-  { id:"quintela",  name:"Quintela",                  cat:"almacen",     tel:"1169886530", pago:"transfer", products:["Aceite girasol","Anchoas","Caldo Deshidratado","Durazno en lata","Mayonesa Hellmans","Muzzarella","Mostaza","Pan rallado","Sal fina","Tomate perita","Vinagre x Litro","Cafe soluble instantaneo","Fritolin","Maicena","Polvo de hornear","Fideos Mostachol/Codito","Sal fina en sobre","Sobre ind. Mayonesa","Sobre ind. Ketchup","Sobre ind. Mostaza"] },
+  { id:"quintela",  name:"Quintela",                  cat:"almacen",     tel:"1169886530", pago:"transfer", products:["Aceite girasol","Azucar muñeca","Anchoas","Caldo Deshidratado","Durazno en lata","Mayonesa Hellmans","Ketchup Sobre","Muzzarella","Mostaza","Pan rallado","Sal fina","Tomate perita","Tomate triturado","Vinagre x Litro","Cafe soluble instantaneo","Fritolin","Maizena","Polvo de hornear","Fideos Mostachol/Codito","Sal fina en sobre","Sobre ind. Mayonesa","Sobre ind. Ketchup","Sobre ind. Mostaza"] },
   { id:"criollo",   name:"Criollo",                   cat:"reposteria",  tel:"1168879202", pago:"transfer", products:["Margarina Hojaldre","Triturado el criollo","Esencia de vainilla 2L","Extracto de malta","Nutella","Tia maria","Chocolate aguila barra","Te green Hills","Te inti zen"] },
   { id:"milkaut",   name:"Milkaut",                   cat:"lacteos",     tel:"",           pago:"transfer", products:["Cheddar pouch","Crema de leche pouch"] },
   { id:"semas",     name:"Semas",                     cat:"fiambres",    tel:"",           pago:"transfer", products:["Queso Brie","Panceta","Jamon Cocido","Jamon Crudo","Regianito"] },
@@ -316,6 +329,7 @@ async function init() {
     const q = query(collection(db,'historial'), orderBy('timestamp','desc'));
     const hsnap = await getDocs(q);
     historial = hsnap.docs.map(d=>({id:d.id,...d.data()}));
+    await loadCustomProducts();
   } catch(e) { console.warn('Firebase offline, using local mode'); }
   buildFilterBar();
   buildCards();
@@ -491,26 +505,163 @@ function updateSummaryBar(){
 // PRECIOS
 function buildPreciosGrid(){
   const grid=document.getElementById('preciosGrid');
+  grid.innerHTML='';
   PROVIDERS.forEach(p=>{
     const withP=p.products.filter((_,i)=>prices[key(p.id,i)]).length;
     const card=document.createElement('div');
     card.className='precio-card';
+    card.id=`pcard-${p.id}`;
     card.innerHTML=`
       <div class="precio-card-header">
         <span class="precio-card-title">${p.name}</span>
-        <span class="precio-card-meta">${withP}/${p.products.length} con precio</span>
+        <span class="precio-card-meta" id="pmeta-${p.id}">${withP}/${p.products.length} con precio</span>
       </div>
-      ${p.products.map((prod,i)=>`
-        <div class="precio-row">
-          <span class="precio-prod-name">${prod}</span>
-          <button class="precio-hist-btn" onclick="showProdHistorial('${key(p.id,i)}','${prod}','${p.name}')">Historial</button>
-          <input class="precio-input" type="number" min="0" placeholder="$0"
-            value="${prices[key(p.id,i)]||''}"
-            onchange="handlePriceChange('${key(p.id,i)}','${p.name}','${prod}',this)"
-            onfocus="this.select()">
-        </div>`).join('')}`;
+      <div id="plist-${p.id}">
+        ${p.products.map((prod,i)=>renderPrecioRow(p.id, p.name, prod, i)).join('')}
+      </div>
+      <button class="btn-add-insumo" onclick="toggleAddInsumo('${p.id}')">
+        <span>＋</span> Agregar insumo
+      </button>
+      <div class="add-insumo-form" id="form-${p.id}">
+        <input class="add-insumo-input" id="input-${p.id}" type="text" placeholder="Nombre del insumo..." onkeydown="if(event.key==='Enter')confirmAddInsumo('${p.id}')">
+        <button class="btn-confirm-insumo" onclick="confirmAddInsumo('${p.id}')">Agregar</button>
+        <button class="btn-cancel-insumo" onclick="toggleAddInsumo('${p.id}')">Cancelar</button>
+      </div>`;
     grid.appendChild(card);
   });
+}
+
+function renderPrecioRow(pid, provName, prod, i){
+  const k=key(pid,i);
+  return`<div class="precio-row" id="prow-${k}">
+    <span class="precio-prod-name">${prod}</span>
+    <button class="precio-hist-btn" onclick="showProdHistorial('${k}','${prod}','${provName}')">Historial</button>
+    <input class="precio-input" type="number" min="0" placeholder="$0"
+      value="${prices[k]||''}"
+      onchange="handlePriceChange('${k}','${provName}','${prod}',this)"
+      onfocus="this.select()">
+    <button class="btn-remove-insumo" onclick="removeInsumo('${pid}',${i})" title="Quitar insumo">✕</button>
+  </div>`;
+}
+
+window.toggleAddInsumo=(pid)=>{
+  const form=document.getElementById(`form-${pid}`);
+  form.classList.toggle('open');
+  if(form.classList.contains('open')) document.getElementById(`input-${pid}`).focus();
+  else document.getElementById(`input-${pid}`).value='';
+};
+
+window.confirmAddInsumo=async(pid)=>{
+  const input=document.getElementById(`input-${pid}`);
+  const nombre=input.value.trim();
+  if(!nombre){showToast('⚠ Ingresá un nombre'); return;}
+  const p=PROVIDERS.find(x=>x.id===pid);
+  if(p.products.map(x=>x.toLowerCase()).includes(nombre.toLowerCase())){showToast('⚠ Ya existe ese insumo'); return;}
+
+  // Add to local array
+  const newIdx=p.products.length;
+  p.products.push(nombre);
+
+  // Save to Firebase custom products
+  await saveCustomProducts(pid, p.products);
+
+  // Render new row
+  const list=document.getElementById(`plist-${pid}`);
+  const div=document.createElement('div');
+  div.innerHTML=renderPrecioRow(pid, p.name, nombre, newIdx);
+  list.appendChild(div.firstElementChild);
+
+  // Update meta
+  updatePrecioMeta(pid);
+  // Also add to pedidos card
+  addProductToCard(pid, nombre, newIdx);
+
+  toggleAddInsumo(pid);
+  showToast(`✓ "${nombre}" agregado a ${p.name}`);
+};
+
+window.removeInsumo=async(pid, idx)=>{
+  const p=PROVIDERS.find(x=>x.id===pid);
+  const nombre=p.products[idx];
+  if(!confirm(`¿Quitar "${nombre}" de ${p.name}?\nSe eliminará el precio asociado.`)) return;
+
+  // Remove from local array (mark as removed)
+  p.products.splice(idx,1);
+
+  // Remove price
+  const k=key(pid,idx);
+  delete prices[k];
+
+  // Re-index prices for this provider
+  const newPrices={...prices};
+  // Shift keys above idx down by 1
+  for(let i=idx; i<p.products.length; i++){
+    const oldKey=`${pid}_${i+1}`;
+    const newKey=`${pid}_${i}`;
+    if(newPrices[oldKey]!==undefined){ newPrices[newKey]=newPrices[oldKey]; delete newPrices[oldKey]; }
+  }
+  Object.assign(prices, newPrices);
+
+  await saveCustomProducts(pid, p.products);
+  try { await setDoc(doc(db,'data','prices'), prices); } catch(e){}
+
+  // Rebuild this card's list
+  const list=document.getElementById(`plist-${pid}`);
+  list.innerHTML=p.products.map((prod,i)=>renderPrecioRow(pid, p.name, prod, i)).join('');
+  updatePrecioMeta(pid);
+  rebuildPedidosCard(pid);
+  showToast(`✓ "${nombre}" eliminado`);
+};
+
+function updatePrecioMeta(pid){
+  const p=PROVIDERS.find(x=>x.id===pid);
+  const withP=p.products.filter((_,i)=>prices[key(pid,i)]).length;
+  const el=document.getElementById(`pmeta-${pid}`);
+  if(el) el.textContent=`${withP}/${p.products.length} con precio`;
+}
+
+async function saveCustomProducts(pid, products){
+  try {
+    await setDoc(doc(db,'customProducts', pid), { products, updatedAt: serverTimestamp() });
+  } catch(e){ console.warn('Could not save custom products', e); }
+}
+
+async function loadCustomProducts(){
+  try {
+    for(const p of PROVIDERS){
+      const snap=await getDoc(doc(db,'customProducts', p.id));
+      if(snap.exists()) p.products=[...snap.data().products];
+    }
+  } catch(e){ console.warn('Could not load custom products', e); }
+}
+
+function addProductToCard(pid, nombre, idx){
+  const list=document.querySelector(`#card-${pid} .product-list`);
+  if(!list) return;
+  const div=document.createElement('div');
+  div.className='product-row'; div.id=`row-${pid}-${idx}`;
+  div.innerHTML=`
+    <span class="product-name">${nombre}</span>
+    <span class="product-price" id="pp-${pid}-${idx}">—</span>
+    <input class="qty-input" type="number" min="0" placeholder="—"
+      oninput="updateQty('${pid}',${idx},this)" onfocus="this.select()">`;
+  list.appendChild(div);
+}
+
+function rebuildPedidosCard(pid){
+  const p=PROVIDERS.find(x=>x.id===pid);
+  const list=document.querySelector(`#card-${pid} .product-list`);
+  if(!list) return;
+  list.innerHTML=p.products.map((prod,i)=>`
+    <div class="product-row" id="row-${pid}-${i}">
+      <span class="product-name">${prod}</span>
+      <span class="product-price ${prices[key(pid,i)]?'has-price':''}" id="pp-${pid}-${i}">${fmtPrice(prices[key(pid,i)])}</span>
+      <input class="qty-input" type="number" min="0" placeholder="—"
+        oninput="updateQty('${pid}',${i},this)" onfocus="this.select()">
+    </div>`).join('');
+  // Reset state for this provider
+  state[pid]={};
+  updateCardUI(pid);
 }
 
 window.handlePriceChange=async(k,provName,prodName,input)=>{
