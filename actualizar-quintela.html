@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actualizar Precios Quintela</title>
+<style>
+  body { font-family: sans-serif; background: #F7F5F0; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .card { background: #fff; border-radius: 16px; padding: 32px; max-width: 520px; width: 100%; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  h2 { font-size: 18px; margin-bottom: 6px; }
+  p { font-size: 13px; color: #666; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+  th { background: #F0EDE8; padding: 8px 10px; text-align: left; font-size: 11px; color: #888; text-transform: uppercase; }
+  td { padding: 7px 10px; border-bottom: 1px solid #E2DDD8; }
+  td:last-child { font-family: monospace; color: #2D6A4F; font-weight: 600; }
+  .btn { width: 100%; font-size: 15px; font-weight: 600; padding: 14px; border-radius: 10px; border: none; background: #1A1814; color: #fff; cursor: pointer; }
+  .btn:hover { background: #333; }
+  .btn:disabled { background: #aaa; cursor: default; }
+  .log { margin-top: 20px; background: #F0EDE8; border-radius: 10px; padding: 14px; font-size: 12px; font-family: monospace; max-height: 200px; overflow-y: auto; line-height: 1.8; display: none; }
+  .ok { color: #2D6A4F; } .err { color: #C2410C; }
+  .done { margin-top: 16px; background: #D8F3DC; border-radius: 10px; padding: 14px; font-size: 13px; font-weight: 600; color: #2D6A4F; display: none; text-align: center; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>🛒 Actualizar precios — Quintela</h2>
+  <p>Se van a cargar <strong>18 precios</strong> actualizados en Firebase.</p>
+  <table>
+    <tr><th>Producto</th><th>Precio</th></tr>
+    <tr><td>Aceite girasol</td><td>$15.400</td></tr>
+    <tr><td>Azucar muñeca</td><td>$10.855</td></tr>
+    <tr><td>Anchoas</td><td>$41.600</td></tr>
+    <tr><td>Caldo Deshidratado</td><td>$10.873</td></tr>
+    <tr><td>Durazno en lata</td><td>$1.215</td></tr>
+    <tr><td>Mayonesa Hellmans</td><td>$11.296</td></tr>
+    <tr><td>Ketchup Sobre</td><td>$12.349</td></tr>
+    <tr><td>Muzzarella</td><td>$9.347</td></tr>
+    <tr><td>Mostaza</td><td>$9.289</td></tr>
+    <tr><td>Pan rallado</td><td>$6.300</td></tr>
+    <tr><td>Sal fina</td><td>$38.700</td></tr>
+    <tr><td>Tomate perita</td><td>$10.816</td></tr>
+    <tr><td>Tomate triturado</td><td>$7.641</td></tr>
+    <tr><td>Vinagre x Litro</td><td>$10.319</td></tr>
+    <tr><td>Cafe soluble instantaneo</td><td>$32.500</td></tr>
+    <tr><td>Fritolin</td><td>$45.240</td></tr>
+    <tr><td>Maizena</td><td>$8.740</td></tr>
+    <tr><td>Polvo de hornear</td><td>$3.520</td></tr>
+  </table>
+  <button class="btn" id="btn" onclick="cargar()">Cargar precios en Firebase</button>
+  <div class="log" id="log"></div>
+  <div class="done" id="done">✅ Precios actualizados. Podés cerrar esta página.</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyC_dkvixcRfzRMxXTAAxjcDuhbsMajApxI",
+  authDomain: "arthur-sistema-pedidos.firebaseapp.com",
+  projectId: "arthur-sistema-pedidos",
+  storageBucket: "arthur-sistema-pedidos.firebasestorage.app",
+  messagingSenderId: "1039699696450",
+  appId: "1:1039699696450:web:f4af86b423eb1b2e8706db"
+});
+const db = getFirestore(app);
+
+// Índices según la nueva lista de productos de Quintela
+const NUEVOS_PRECIOS = [
+  { idx: 0,  name: "Aceite girasol",          price: 15400  },
+  { idx: 1,  name: "Azucar muñeca",           price: 10855  },
+  { idx: 2,  name: "Anchoas",                 price: 41600  },
+  { idx: 3,  name: "Caldo Deshidratado",      price: 10873  },
+  { idx: 4,  name: "Durazno en lata",         price: 1215   },
+  { idx: 5,  name: "Mayonesa Hellmans",        price: 11296  },
+  { idx: 6,  name: "Ketchup Sobre",           price: 12349  },
+  { idx: 7,  name: "Muzzarella",              price: 9347   },
+  { idx: 8,  name: "Mostaza",                 price: 9289   },
+  { idx: 9,  name: "Pan rallado",             price: 6300   },
+  { idx: 10, name: "Sal fina",                price: 38700  },
+  { idx: 11, name: "Tomate perita",           price: 10816  },
+  { idx: 12, name: "Tomate triturado",        price: 7641   },
+  { idx: 13, name: "Vinagre x Litro",         price: 10319  },
+  { idx: 14, name: "Cafe soluble instantaneo",price: 32500  },
+  { idx: 15, name: "Fritolin",                price: 45240  },
+  { idx: 16, name: "Maizena",                 price: 8740   },
+  { idx: 17, name: "Polvo de hornear",        price: 3520   },
+];
+
+function log(msg, cls='') {
+  const el = document.getElementById('log');
+  el.style.display = 'block';
+  el.innerHTML += `<div class="${cls}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+window.cargar = async () => {
+  const btn = document.getElementById('btn');
+  btn.disabled = true; btn.textContent = 'Cargando...';
+  try {
+    const snap = await getDoc(doc(db, 'data', 'prices'));
+    const prices = snap.exists() ? snap.data() : {};
+    for (const { idx, name, price } of NUEVOS_PRECIOS) {
+      const key = `quintela_${idx}`;
+      const oldPrice = prices[key] || null;
+      prices[key] = price;
+      await addDoc(collection(db, 'historial'), {
+        key, provName: 'Quintela', prodName: name,
+        oldPrice, newPrice: price,
+        userEmail: 'hernan.layno@gmail.com',
+        userName: 'Hernan Layno',
+        timestamp: serverTimestamp(),
+      });
+      log(`✓ ${name}: $${price.toLocaleString('es-AR')}`, 'ok');
+    }
+    await setDoc(doc(db, 'data', 'prices'), prices);
+    document.getElementById('done').style.display = 'block';
+    btn.textContent = '✅ Listo';
+  } catch(e) {
+    log(`✗ Error: ${e.message}`, 'err');
+    btn.disabled = false; btn.textContent = 'Reintentar';
+  }
+};
+</script>
+</body>
+</html>
