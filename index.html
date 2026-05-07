@@ -11,33 +11,39 @@
     --bg: #F7F5F0; --surface: #FFFFFF; --surface2: #F0EDE8;
     --ink: #1A1814; --ink2: #6B6760; --ink3: #A8A49F;
     --accent: #2D6A4F; --accent-light: #D8F3DC;
+    --info: #1D4ED8; --info-light: #EFF6FF;
     --border: #E2DDD8;
     --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
     --radius: 12px;
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding-bottom: 120px; }
 
-  header { background: var(--ink); color: #fff; padding: 18px 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; }
-  header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
-  .header-date { font-size: 12px; color: #aaa; font-family: 'DM Mono', monospace; }
+  /* HEADER */
+  header { background: var(--ink); color: #fff; padding: 14px 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  header h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 8px; border: none; background: transparent; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.15s; }
+  .nav-tab:hover { color: #fff; background: rgba(255,255,255,0.1); }
+  .nav-tab.active { color: #fff; background: rgba(255,255,255,0.15); }
+  .header-date { font-size: 12px; color: #aaa; font-family: 'DM Mono', monospace; white-space: nowrap; }
 
+  /* FILTER BAR */
   .filter-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; position: sticky; top: 57px; z-index: 90; }
   .filter-bar::-webkit-scrollbar { display: none; }
   .filter-btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--border); background: transparent; color: var(--ink2); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
   .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
   .filter-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
 
+  /* PEDIDOS */
+  #viewPedidos { display: block; }
   main { max-width: 1200px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-
   .provider-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.2s; }
   .provider-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06); }
-
   .card-header { padding: 14px 18px 10px; border-bottom: 1px solid var(--border); }
   .card-header-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
   .card-title { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
   .card-count { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--ink3); background: var(--surface2); padding: 3px 8px; border-radius: 999px; flex-shrink: 0; transition: all 0.2s; }
   .card-count.has-items { background: var(--accent-light); color: var(--accent); font-weight: 500; }
-
   .card-contact { display: flex; flex-wrap: wrap; gap: 5px; }
   .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-family: 'DM Mono', monospace; padding: 3px 8px; border-radius: 6px; text-decoration: none; transition: background 0.15s; }
   .chip-tel { background: var(--surface2); color: var(--ink2); }
@@ -46,20 +52,19 @@
   .chip-transfer { background: #EEF2FF; color: #3730A3; }
   .chip-efectivo { background: #FFF7ED; color: #C2410C; }
   .chip-ambos { background: #F0FDF4; color: #166534; }
-
   .product-list { padding: 8px 0; flex: 1; max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
   .product-list::-webkit-scrollbar { width: 4px; }
   .product-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
   .product-row { display: flex; align-items: center; gap: 12px; padding: 7px 18px; transition: background 0.1s; }
   .product-row:hover { background: var(--surface2); }
   .product-row.has-qty { background: #F0FAF4; }
   .product-name { flex: 1; font-size: 13px; color: var(--ink); line-height: 1.3; }
+  .product-price { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--ink3); min-width: 56px; text-align: right; }
+  .product-price.has-price { color: var(--accent); }
   .qty-input { width: 58px; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; text-align: center; padding: 5px 6px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s, background 0.15s; -moz-appearance: textfield; }
   .qty-input::-webkit-inner-spin-button, .qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
   .qty-input:focus { border-color: var(--accent); background: #fff; }
   .qty-input.filled { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
-
   .card-footer { padding: 10px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
   .btn-clear { font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 7px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: transparent; color: var(--ink2); cursor: pointer; transition: all 0.15s; }
   .btn-clear:hover { background: var(--surface2); }
@@ -67,6 +72,45 @@
   .btn-whatsapp.active { opacity: 1; pointer-events: auto; background: #25D366; }
   .btn-whatsapp.active:hover { background: #1ebe5d; }
 
+  /* PRECIOS */
+  #viewPrecios { display: none; }
+  .section-header { max-width: 1200px; margin: 0 auto; padding: 24px 16px 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .section-title { font-size: 18px; font-weight: 600; }
+  .section-sub { font-size: 13px; color: var(--ink2); margin-top: 2px; }
+  .btn-export { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer; transition: all 0.15s; }
+  .btn-export:hover { background: var(--surface2); }
+  .precios-grid { max-width: 1200px; margin: 0 auto; padding: 8px 16px 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .precio-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+  .precio-card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .precio-card-title { font-size: 14px; font-weight: 600; }
+  .precio-card-meta { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+  .precio-row { display: flex; align-items: center; gap: 10px; padding: 8px 18px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .precio-row:last-child { border-bottom: none; }
+  .precio-row:hover { background: var(--surface2); }
+  .precio-prod-name { flex: 1; font-size: 13px; color: var(--ink); }
+  .precio-hist-btn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--ink3); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .precio-hist-btn:hover { background: var(--info-light); color: var(--info); border-color: var(--info); }
+  .precio-input { width: 90px; font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; text-align: right; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; -moz-appearance: textfield; }
+  .precio-input::-webkit-inner-spin-button, .precio-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .precio-input:focus { border-color: var(--accent); background: #fff; }
+
+  /* HISTORIAL */
+  #viewHistorial { display: none; }
+  .hist-container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+  .hist-filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .hist-filter-sel { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 7px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--ink); outline: none; cursor: pointer; }
+  .hist-table { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+  .hist-row { display: grid; grid-template-columns: 1fr 1fr 80px 80px 130px; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border); align-items: center; font-size: 13px; }
+  .hist-row:last-child { border-bottom: none; }
+  .hist-row.header { background: var(--surface2); font-weight: 600; font-size: 11px; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .hist-price-old { color: var(--ink3); text-decoration: line-through; font-family: 'DM Mono', monospace; }
+  .hist-price-new { color: var(--accent); font-family: 'DM Mono', monospace; font-weight: 500; }
+  .hist-price-up { color: #C2410C; }
+  .hist-price-down { color: var(--accent); }
+  .hist-date { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+  .hist-empty { padding: 48px; text-align: center; color: var(--ink3); font-size: 14px; }
+
+  /* MODAL PEDIDOS */
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: flex-end; justify-content: center; }
   .modal-overlay.open { display: flex; }
   .modal { background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px; width: 100%; max-width: 600px; max-height: 82vh; display: flex; flex-direction: column; gap: 14px; animation: slideUp 0.25s ease; }
@@ -83,14 +127,28 @@
   .btn-send-wa:hover { background: #1ebe5d; }
   .btn-send-wa.no-tel { background: var(--surface2); color: var(--ink3); cursor: default; }
 
+  /* MODAL HISTORIAL */
+  .hist-modal { background: var(--surface); border-radius: 20px 20px 0 0; padding: 24px; width: 100%; max-width: 600px; max-height: 80vh; display: flex; flex-direction: column; gap: 14px; animation: slideUp 0.25s ease; }
+  .hist-modal-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .hist-entry { background: var(--surface2); border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .hist-entry-info { font-size: 12px; color: var(--ink2); margin-top: 2px; }
+
+  /* SUMMARY BAR */
   .summary-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); color: #fff; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; z-index: 150; transform: translateY(100%); transition: transform 0.3s ease; }
   .summary-bar.visible { transform: translateY(0); }
   .summary-text { font-size: 13px; color: #ccc; }
   .summary-text strong { color: #fff; font-size: 15px; display: block; }
   .btn-summary { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 8px; border: none; background: #25D366; color: #fff; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 
-  @media (max-width: 480px) {
-    main { grid-template-columns: 1fr; padding: 12px 10px; }
+  /* TOAST */
+  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s; z-index: 300; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 600px) {
+    main, .precios-grid { grid-template-columns: 1fr; padding: 12px 10px; }
+    .nav-tab span { display: none; }
+    .hist-row { grid-template-columns: 1fr 1fr 70px 70px; }
+    .hist-row > *:nth-child(5) { display: none; }
     .header-date { display: none; }
   }
 </style>
@@ -98,16 +156,63 @@
 <body>
 
 <header>
-  <h1>🛒 Sistema de Pedidos</h1>
+  <div style="display:flex;align-items:center;gap:12px">
+    <h1>🛒 Sistema de Pedidos</h1>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-view="pedidos" onclick="switchView('pedidos')">📋 <span>Pedidos</span></button>
+      <button class="nav-tab" data-view="precios" onclick="switchView('precios')">💲 <span>Precios</span></button>
+      <button class="nav-tab" data-view="historial" onclick="switchView('historial')">🕒 <span>Historial</span></button>
+    </nav>
+  </div>
   <span class="header-date" id="fecha-hdr"></span>
 </header>
 
-<div class="filter-bar" id="filterBar">
-  <button class="filter-btn active" data-filter="all">Todos</button>
+<!-- PEDIDOS -->
+<div id="viewPedidos">
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="all">Todos</button>
+  </div>
+  <main id="cardsContainer"></main>
 </div>
 
-<main id="cardsContainer"></main>
+<!-- PRECIOS -->
+<div id="viewPrecios">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Precios por proveedor</div>
+      <div class="section-sub">Actualizá los precios de cada producto</div>
+    </div>
+    <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
+  </div>
+  <div class="precios-grid" id="preciosGrid"></div>
+</div>
 
+<!-- HISTORIAL -->
+<div id="viewHistorial">
+  <div class="hist-container">
+    <div class="section-title" style="margin-bottom:4px">Historial de precios</div>
+    <div class="section-sub" style="margin-bottom:20px">Todos los cambios registrados</div>
+    <div class="hist-filters">
+      <select class="hist-filter-sel" id="filtProvHist" onchange="renderHistorial()">
+        <option value="">Todos los proveedores</option>
+      </select>
+      <select class="hist-filter-sel" id="filtPeriodHist" onchange="renderHistorial()">
+        <option value="30">Últimos 30 días</option>
+        <option value="60">Últimos 60 días</option>
+        <option value="90">Últimos 90 días</option>
+        <option value="0">Todo</option>
+      </select>
+    </div>
+    <div class="hist-table">
+      <div class="hist-row header">
+        <span>Producto</span><span>Proveedor</span><span>Anterior</span><span>Nuevo</span><span>Fecha</span>
+      </div>
+      <div id="histBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY BAR -->
 <div class="summary-bar" id="summaryBar">
   <div class="summary-text">
     <strong id="summaryTitle">—</strong>
@@ -116,6 +221,7 @@
   <button class="btn-summary" onclick="showAllMessages()">Ver todos los mensajes</button>
 </div>
 
+<!-- MODAL PEDIDOS -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-header">
@@ -133,36 +239,56 @@
   </div>
 </div>
 
-<script>
+<!-- MODAL HISTORIAL -->
+<div class="modal-overlay" id="histModalOverlay" onclick="closeHistModal(event)">
+  <div class="hist-modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="histModalTitle"></div>
+        <div class="modal-subtitle" id="histModalSub"></div>
+      </div>
+      <button class="modal-close" onclick="closeHistModal()">×</button>
+    </div>
+    <div class="hist-modal-list" id="histModalList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC_dkvixcRfzRMxXTAAxjcDuhbsMajApxI",
+  authDomain: "arthur-sistema-pedidos.firebaseapp.com",
+  projectId: "arthur-sistema-pedidos",
+  storageBucket: "arthur-sistema-pedidos.firebasestorage.app",
+  messagingSenderId: "1039699696450",
+  appId: "1:1039699696450:web:f4af86b423eb1b2e8706db"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let prices = {};
+let historial = [];
+
 const PROVIDERS = [
-  { id:"quintela",  name:"Quintela",                  cat:"almacen",     tel:"1169886530", pago:"transfer",
-    products:["Aceite girasol","Anchoas","Caldo Deshidratado","Durazno en lata","Mayonesa Hellmans","Muzzarella","Mostaza","Pan rallado","Sal fina","Tomate perita","Vinagre x Litro","Cafe soluble instantaneo","Fritolin","Maicena","Polvo de hornear","Fideos Mostachol/Codito","Sal fina en sobre","Sobre ind. Mayonesa","Sobre ind. Ketchup","Sobre ind. Mostaza"] },
-  { id:"criollo",   name:"Criollo",                   cat:"reposteria",  tel:"1168879202", pago:"transfer",
-    products:["Margarina Hojaldre","Triturado el criollo","Esencia de vainilla 2L","Extracto de malta","Nutella","Tia maria","Chocolate aguila barra","Te green Hills","Te inti zen"] },
-  { id:"milkaut",   name:"Milkaut",                   cat:"lacteos",     tel:"",           pago:"transfer",
-    products:["Cheddar pouch","Crema de leche pouch"] },
-  { id:"semas",     name:"Semas",                     cat:"fiambres",    tel:"",           pago:"transfer",
-    products:["Queso Brie","Panceta","Jamon Cocido","Jamon Crudo","Regianito"] },
-  { id:"cuyaires",  name:"Cuyaires",                  cat:"especias",    tel:"1160202609", pago:"transfer",
-    products:["Aji molido","Comino","Curry","Garbanzo M","Harina de Garbanzo","Nuez molida","Oregano","Pasas negras","Pimenton","Semillas Girasol","Semillas Sesamo Blancas","Semillas Sesamo Negras","Amapolas"] },
-  { id:"carne",     name:"Carne",                     cat:"carnes",      tel:"1166843938", pago:"transfer",
-    products:["Roast Beef P","Paleta Entera","Suprema 15kg"] },
-  { id:"aceite",    name:"Aceite Freidoras",           cat:"almacen",     tel:"1158376955", pago:"efectivo",
-    products:["Aceite Freidoras"] },
-  { id:"manteca",   name:"Manteca Parada / Bermudez", cat:"reposteria",  tel:"1150489357", pago:"transfer",
-    products:["Azucar Bolsa 50kg","Manteca (4Px5k)","Miel x 5kg"] },
-  { id:"iceferas",  name:"Iceferas SRL",              cat:"congelados",  tel:"1131658780", pago:"efectivo",
-    products:["Mix frutos rojos","Frambuesas"] },
-  { id:"porto",     name:"Porto Expreso",             cat:"cafe",        tel:"",           pago:"ambos",
-    products:["Cafe en grano","Cafe Molido (Cold Brew)","Cuartitos (Molido)","Cuartitos (Grano)","Syrup Vainilla","Syrup Avellana","Syrup Caramelo","Pulpa de frutilla","Sobres de azucar","Sobres de Hileret individual"] },
-  { id:"papelera",  name:"Papelera Ormazabal",        cat:"descartables",tel:"1127567174", pago:"transfer",
-    products:["Aluminio","Arranque 15x20","Arranque 20x30","Arranque 40x50","Bolsa FM7","Bolsa pp 15x20 (Cookies)","Bolsa pp 6x25 (cubierto)","Bolsa pp 8x5 (Queso)","Camiseta 30x40","Camiseta 40x50","Camiseta 50x60","Dips 80CC","Tapa Dip","Estuche Pet 133 (Tortas)","Film","Folex Grandes","Mangas Descartables (Rollo)","P14 (Molde Tarta)","Papel Manteca","Parafinado","Tapa Plato Vianda","Plato Vianda","Pote Acanalado 390CC","R3(F75) Aluminio con tapa","Removedores Madera","Rollos Comandera 50x80/30x80","Rollos de Cocina","Servilletas 33x33","Sorbetes","Vasos"] },
-  { id:"limpieza",  name:"Limpieza",                  cat:"limpieza",    tel:"1169013777", pago:"transfer",
-    products:["Alcohol en bidon","Consorcio 80x110","Bolsa Residuo 50x70","Bolsa Verde 80x110","Ceramicol (BLEM)","Desodorante de piso","Desengrasante","Detergente","Escobillon","Esponja de Fibra Verde","Esponja Lisa Chica","Guantes naranja M","Jabon liquido","Jabon blanco","Lavandina","Lavandina en Gel","Limpiavidrios","Odex cremoso (CIF)","Palo escobillon","Papel Higienico Cono GD","Rejilla Make","Repasadores","Rollo de cocina","Secador NUMERO 40","Trapo de piso 50x60 gris","Alcohol en gel"] },
-  { id:"verduleria",name:"Verdulería",                cat:"verduleria",  tel:"1159325905", pago:"transfer",
-    products:["Acelga","Ajo","Albahaca (paq)","Banana","Berenjena","Brocoli","Cebolla (bolsa)","Cebolla morada","Champi (ban)","Cilantro (paq)","Calabaza (bolsa)","Coliflor","Espinaca (cajon)","Jengibre","Lechuga Criolla (cajon)","Lechuga Morada (cajon)","Limon (cajon)","Manzana Verde","Menta (paq)","Morron","Naranja (cajon)","Palta","Papa (bolsa)","Pepino","Perejil","Puerro (paq)","Repollo Blanco","Repollo Morado","Rucula","Tomate perita","Tomate cherry","Zapallito","Zanahoria","Radicheta"] },
-  { id:"bebidas",   name:"Bebidas",                   cat:"bebidas",     tel:"",           pago:"transfer",
-    products:["Agua sin gas","Agua con gas","Levite Manzana","Levite Naranja","Levite Pomelo","Coca comun","Coca zero","Sprite zero","Schweppes","Sifon de Soda Chico","Sifon de Soda Grande"] },
+  { id:"quintela",  name:"Quintela",                  cat:"almacen",     tel:"1169886530", pago:"transfer", products:["Aceite girasol","Anchoas","Caldo Deshidratado","Durazno en lata","Mayonesa Hellmans","Muzzarella","Mostaza","Pan rallado","Sal fina","Tomate perita","Vinagre x Litro","Cafe soluble instantaneo","Fritolin","Maicena","Polvo de hornear","Fideos Mostachol/Codito","Sal fina en sobre","Sobre ind. Mayonesa","Sobre ind. Ketchup","Sobre ind. Mostaza"] },
+  { id:"criollo",   name:"Criollo",                   cat:"reposteria",  tel:"1168879202", pago:"transfer", products:["Margarina Hojaldre","Triturado el criollo","Esencia de vainilla 2L","Extracto de malta","Nutella","Tia maria","Chocolate aguila barra","Te green Hills","Te inti zen"] },
+  { id:"milkaut",   name:"Milkaut",                   cat:"lacteos",     tel:"",           pago:"transfer", products:["Cheddar pouch","Crema de leche pouch"] },
+  { id:"semas",     name:"Semas",                     cat:"fiambres",    tel:"",           pago:"transfer", products:["Queso Brie","Panceta","Jamon Cocido","Jamon Crudo","Regianito"] },
+  { id:"cuyaires",  name:"Cuyaires",                  cat:"especias",    tel:"1160202609", pago:"transfer", products:["Aji molido","Comino","Curry","Garbanzo M","Harina de Garbanzo","Nuez molida","Oregano","Pasas negras","Pimenton","Semillas Girasol","Semillas Sesamo Blancas","Semillas Sesamo Negras","Amapolas"] },
+  { id:"carne",     name:"Carne",                     cat:"carnes",      tel:"1166843938", pago:"transfer", products:["Roast Beef P","Paleta Entera","Suprema 15kg"] },
+  { id:"aceite",    name:"Aceite Freidoras",           cat:"almacen",     tel:"1158376955", pago:"efectivo", products:["Aceite Freidoras"] },
+  { id:"manteca",   name:"Manteca Parada / Bermudez", cat:"reposteria",  tel:"1150489357", pago:"transfer", products:["Azucar Bolsa 50kg","Manteca (4Px5k)","Miel x 5kg"] },
+  { id:"iceferas",  name:"Iceferas SRL",              cat:"congelados",  tel:"1131658780", pago:"efectivo", products:["Mix frutos rojos","Frambuesas"] },
+  { id:"porto",     name:"Porto Expreso",             cat:"cafe",        tel:"",           pago:"ambos",    products:["Cafe en grano","Cafe Molido (Cold Brew)","Cuartitos (Molido)","Cuartitos (Grano)","Syrup Vainilla","Syrup Avellana","Syrup Caramelo","Pulpa de frutilla","Sobres de azucar","Sobres de Hileret individual"] },
+  { id:"papelera",  name:"Papelera Ormazabal",        cat:"descartables",tel:"1127567174", pago:"transfer", products:["Aluminio","Arranque 15x20","Arranque 20x30","Arranque 40x50","Bolsa FM7","Bolsa pp 15x20 (Cookies)","Bolsa pp 6x25 (cubierto)","Bolsa pp 8x5 (Queso)","Camiseta 30x40","Camiseta 40x50","Camiseta 50x60","Dips 80CC","Tapa Dip","Estuche Pet 133 (Tortas)","Film","Folex Grandes","Mangas Descartables (Rollo)","P14 (Molde Tarta)","Papel Manteca","Parafinado","Tapa Plato Vianda","Plato Vianda","Pote Acanalado 390CC","R3(F75) Aluminio con tapa","Removedores Madera","Rollos Comandera 50x80/30x80","Rollos de Cocina","Servilletas 33x33","Sorbetes","Vasos"] },
+  { id:"limpieza",  name:"Limpieza",                  cat:"limpieza",    tel:"1169013777", pago:"transfer", products:["Alcohol en bidon","Consorcio 80x110","Bolsa Residuo 50x70","Bolsa Verde 80x110","Ceramicol (BLEM)","Desodorante de piso","Desengrasante","Detergente","Escobillon","Esponja de Fibra Verde","Esponja Lisa Chica","Guantes naranja M","Jabon liquido","Jabon blanco","Lavandina","Lavandina en Gel","Limpiavidrios","Odex cremoso (CIF)","Palo escobillon","Papel Higienico Cono GD","Rejilla Make","Repasadores","Rollo de cocina","Secador NUMERO 40","Trapo de piso 50x60 gris","Alcohol en gel"] },
+  { id:"verduleria",name:"Verdulería",                cat:"verduleria",  tel:"1159325905", pago:"transfer", products:["Acelga","Ajo","Albahaca (paq)","Banana","Berenjena","Brocoli","Cebolla (bolsa)","Cebolla morada","Champi (ban)","Cilantro (paq)","Calabaza (bolsa)","Coliflor","Espinaca (cajon)","Jengibre","Lechuga Criolla (cajon)","Lechuga Morada (cajon)","Limon (cajon)","Manzana Verde","Menta (paq)","Morron","Naranja (cajon)","Palta","Papa (bolsa)","Pepino","Perejil","Puerro (paq)","Repollo Blanco","Repollo Morado","Rucula","Tomate perita","Tomate cherry","Zapallito","Zanahoria","Radicheta"] },
+  { id:"bebidas",   name:"Bebidas",                   cat:"bebidas",     tel:"",           pago:"transfer", products:["Agua sin gas","Agua con gas","Levite Manzana","Levite Naranja","Levite Pomelo","Coca comun","Coca zero","Sprite zero","Schweppes","Sifon de Soda Chico","Sifon de Soda Grande"] },
 ];
 
 const CATS = { almacen:"Almacén", reposteria:"Repostería", lacteos:"Lácteos", fiambres:"Fiambres", especias:"Especias", carnes:"Carnes", congelados:"Congelados", cafe:"Café", descartables:"Descartables", limpieza:"Limpieza", verduleria:"Verdulería", bebidas:"Bebidas" };
@@ -172,197 +298,327 @@ const PAGO_CHIP  = { transfer:"chip chip-transfer", efectivo:"chip chip-efectivo
 const state = {};
 PROVIDERS.forEach(p => state[p.id] = {});
 let currentModalProvider = null;
-
 const now = new Date();
-document.getElementById('fecha-hdr').textContent =
-  now.toLocaleDateString('es-AR', { weekday:'short', day:'numeric', month:'short' });
 
-// Filter bar
-const filterBar = document.getElementById('filterBar');
-[...new Set(PROVIDERS.map(p => p.cat))].forEach(cat => {
-  const btn = document.createElement('button');
-  btn.className = 'filter-btn'; btn.dataset.filter = cat;
-  btn.textContent = CATS[cat] || cat;
-  btn.onclick = () => setFilter(cat);
-  filterBar.appendChild(btn);
-});
+// Date header
+document.getElementById('fecha-hdr').textContent = now.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
 
-function setFilter(f) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
-  document.querySelectorAll('.provider-card').forEach(c => c.style.display = (f==='all'||c.dataset.cat===f)?'':'none');
+function fmtTel(t) { const c=t.replace(/\D/g,''); return c.length===10?`${c.slice(0,2)} ${c.slice(2,6)}-${c.slice(6)}`:t; }
+function fmtPrice(p) { return p?`$${Number(p).toLocaleString('es-AR')}`:'—'; }
+function key(pid,idx) { return `${pid}_${idx}`; }
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+// Load data from Firebase
+async function init() {
+  try {
+    const snap = await getDoc(doc(db,'data','prices'));
+    if (snap.exists()) prices = snap.data();
+    const q = query(collection(db,'historial'), orderBy('timestamp','desc'));
+    const hsnap = await getDocs(q);
+    historial = hsnap.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(e) { console.warn('Firebase offline, using local mode'); }
+  buildFilterBar();
+  buildCards();
+  buildPreciosGrid();
+  buildHistorialFilters();
 }
 
-function fmtTel(t) {
-  const c = t.replace(/\D/g,'');
-  return c.length===10 ? `${c.slice(0,2)} ${c.slice(2,6)}-${c.slice(6)}` : t;
+// SWITCH VIEW
+window.switchView = (view) => {
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.view===view));
+  document.getElementById('viewPedidos').style.display  = view==='pedidos'  ?'block':'none';
+  document.getElementById('viewPrecios').style.display  = view==='precios'  ?'block':'none';
+  document.getElementById('viewHistorial').style.display= view==='historial'?'block':'none';
+  document.getElementById('summaryBar').style.display   = view==='pedidos'  ?''    :'none';
+  if(view==='historial') renderHistorial();
+};
+
+// FILTER BAR
+function buildFilterBar() {
+  const fb=document.getElementById('filterBar');
+  [...new Set(PROVIDERS.map(p=>p.cat))].forEach(cat=>{
+    const btn=document.createElement('button');
+    btn.className='filter-btn'; btn.dataset.filter=cat;
+    btn.textContent=CATS[cat]||cat;
+    btn.onclick=()=>setFilter(cat);
+    fb.appendChild(btn);
+  });
 }
+window.setFilter=(f)=>{
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter===f));
+  document.querySelectorAll('.provider-card').forEach(c=>c.style.display=(f==='all'||c.dataset.cat===f)?'':'none');
+};
 
-// Build cards
-const container = document.getElementById('cardsContainer');
-PROVIDERS.forEach(p => {
-  const telChip = p.tel
-    ? `<a class="chip chip-tel" href="tel:+54${p.tel.replace(/\D/g,'')}">📞 ${fmtTel(p.tel)}</a>`
-    : `<span class="chip chip-notel">Sin teléfono</span>`;
-  const pagoChip = `<span class="${PAGO_CHIP[p.pago]}">${PAGO_LABEL[p.pago]}</span>`;
-
-  const card = document.createElement('div');
-  card.className = 'provider-card'; card.dataset.cat = p.cat; card.id = 'card-'+p.id;
-  card.innerHTML = `
-    <div class="card-header">
-      <div class="card-header-top">
-        <span class="card-title">${p.name}</span>
-        <span class="card-count" id="count-${p.id}">${p.products.length} productos</span>
+// CARDS
+function buildCards() {
+  const container=document.getElementById('cardsContainer');
+  PROVIDERS.forEach(p=>{
+    const telChip=p.tel?`<a class="chip chip-tel" href="tel:+54${p.tel.replace(/\D/g,'')}">📞 ${fmtTel(p.tel)}</a>`:`<span class="chip chip-notel">Sin teléfono</span>`;
+    const pagoChip=`<span class="${PAGO_CHIP[p.pago]}">${PAGO_LABEL[p.pago]}</span>`;
+    const card=document.createElement('div');
+    card.className='provider-card'; card.dataset.cat=p.cat; card.id='card-'+p.id;
+    card.innerHTML=`
+      <div class="card-header">
+        <div class="card-header-top">
+          <span class="card-title">${p.name}</span>
+          <span class="card-count" id="count-${p.id}">${p.products.length} productos</span>
+        </div>
+        <div class="card-contact">${telChip}${pagoChip}</div>
       </div>
-      <div class="card-contact">${telChip}${pagoChip}</div>
-    </div>
-    <div class="product-list">
-      ${p.products.map((prod,i)=>`
-        <div class="product-row" id="row-${p.id}-${i}">
-          <span class="product-name">${prod}</span>
-          <input class="qty-input" type="number" min="0" placeholder="—"
-            oninput="updateQty('${p.id}',${i},this)" onfocus="this.select()">
-        </div>`).join('')}
-    </div>
-    <div class="card-footer">
-      <button class="btn-clear" onclick="clearProvider('${p.id}')">Limpiar</button>
-      <button class="btn-whatsapp" id="wa-${p.id}" onclick="sendDirect('${p.id}')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Enviar por WhatsApp
-      </button>
-    </div>`;
-  container.appendChild(card);
-});
+      <div class="product-list">
+        ${p.products.map((prod,i)=>`
+          <div class="product-row" id="row-${p.id}-${i}">
+            <span class="product-name">${prod}</span>
+            <span class="product-price ${prices[key(p.id,i)]?'has-price':''}" id="pp-${p.id}-${i}">${fmtPrice(prices[key(p.id,i)])}</span>
+            <input class="qty-input" type="number" min="0" placeholder="—"
+              oninput="updateQty('${p.id}',${i},this)" onfocus="this.select()">
+          </div>`).join('')}
+      </div>
+      <div class="card-footer">
+        <button class="btn-clear" onclick="clearProvider('${p.id}')">Limpiar</button>
+        <button class="btn-whatsapp" id="wa-${p.id}" onclick="sendDirect('${p.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar por WhatsApp
+        </button>
+      </div>`;
+    container.appendChild(card);
+  });
+}
 
-function updateQty(pid, idx, input) {
-  const val = parseFloat(input.value);
-  const row = document.getElementById(`row-${pid}-${idx}`);
-  if (input.value !== '' && val > 0) {
-    state[pid][idx] = val;
-    input.classList.add('filled');
-    row.classList.add('has-qty');
-  } else {
-    delete state[pid][idx];
-    input.classList.remove('filled');
-    row.classList.remove('has-qty');
-  }
+window.updateQty=(pid,idx,input)=>{
+  const val=parseFloat(input.value), row=document.getElementById(`row-${pid}-${idx}`);
+  if(input.value!==''&&val>0){state[pid][idx]=val;input.classList.add('filled');row.classList.add('has-qty');}
+  else{delete state[pid][idx];input.classList.remove('filled');row.classList.remove('has-qty');}
   updateCardUI(pid); updateSummaryBar();
+};
+
+function updateCardUI(pid){
+  const p=PROVIDERS.find(x=>x.id===pid),n=Object.keys(state[pid]).length;
+  const el=document.getElementById('count-'+pid),wa=document.getElementById('wa-'+pid);
+  if(n>0){el.textContent=`${n} seleccionado${n!==1?'s':''}`;el.classList.add('has-items');wa.classList.add('active');}
+  else{el.textContent=`${p.products.length} productos`;el.classList.remove('has-items');wa.classList.remove('active');}
 }
 
-function updateCardUI(pid) {
-  const p = PROVIDERS.find(x => x.id===pid);
-  const n = Object.keys(state[pid]).length;
-  const el = document.getElementById('count-'+pid);
-  const wa = document.getElementById('wa-'+pid);
-  if (n > 0) { el.textContent=`${n} seleccionado${n!==1?'s':''}`; el.classList.add('has-items'); wa.classList.add('active'); }
-  else { el.textContent=`${p.products.length} productos`; el.classList.remove('has-items'); wa.classList.remove('active'); }
-}
-
-function clearProvider(pid) {
-  state[pid] = {};
-  const p = PROVIDERS.find(x=>x.id===pid);
-  p.products.forEach((_,i)=>{
-    const inp = document.querySelector(`[data-provider="${pid}"][data-idx="${i}"]`);
-    // fallback: find by position
-    const inputs = document.querySelectorAll(`#card-${pid} .qty-input`);
-    if (inputs[i]) { inputs[i].value=''; inputs[i].classList.remove('filled'); }
-    const row = document.getElementById(`row-${pid}-${i}`);
-    if (row) row.classList.remove('has-qty');
+window.clearProvider=(pid)=>{
+  state[pid]={};
+  PROVIDERS.find(x=>x.id===pid).products.forEach((_,i)=>{
+    const inputs=document.querySelectorAll(`#card-${pid} .qty-input`);
+    if(inputs[i]){inputs[i].value='';inputs[i].classList.remove('filled');}
+    const row=document.getElementById(`row-${pid}-${i}`);
+    if(row)row.classList.remove('has-qty');
   });
   updateCardUI(pid); updateSummaryBar();
+};
+
+function buildMessage(pid){
+  const p=PROVIDERS.find(x=>x.id===pid),items=Object.entries(state[pid]);
+  if(!items.length)return'';
+  const fecha=now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+  let msg=`Hola! 👋 Te paso el pedido de la semana (${fecha}):\n\n`;
+  items.forEach(([idx,qty])=>msg+=`• ${p.products[idx]}: ${qty}\n`);
+  return msg+`\n¡Gracias! 🙏`;
 }
 
-function buildMessage(pid) {
-  const p = PROVIDERS.find(x=>x.id===pid);
-  const items = Object.entries(state[pid]);
-  if (!items.length) return '';
-  const fecha = now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
-  let msg = `Hola! 👋 Te paso el pedido de la semana (${fecha}):\n\n`;
-  items.forEach(([idx,qty]) => msg += `• ${p.products[idx]}: ${qty}\n`);
-  msg += `\n¡Gracias! 🙏`;
-  return msg;
-}
+window.sendDirect=(pid)=>{
+  const p=PROVIDERS.find(x=>x.id===pid),msg=buildMessage(pid);
+  if(!msg)return;
+  if(p.tel){window.open(`https://wa.me/54${p.tel.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank');}
+  else openModal(pid);
+};
 
-function sendDirect(pid) {
-  const p = PROVIDERS.find(x=>x.id===pid);
-  const msg = buildMessage(pid);
-  if (!msg) return;
-  if (p.tel) {
-    const tel = p.tel.replace(/\D/g,'');
-    window.open(`https://wa.me/54${tel}?text=${encodeURIComponent(msg)}`, '_blank');
-  } else {
-    // No phone: open modal to copy manually
-    openModal(pid);
-  }
-}
-
-function openModal(pid) {
-  const p = PROVIDERS.find(x=>x.id===pid);
-  const msg = buildMessage(pid);
-  if (!msg) return;
-  currentModalProvider = pid;
-  document.getElementById('modalTitle').textContent = p.name;
-  const sub = [p.tel ? `📞 ${fmtTel(p.tel)}` : null, PAGO_LABEL[p.pago]].filter(Boolean).join('  ·  ');
-  document.getElementById('modalSubtitle').textContent = sub;
-  document.getElementById('modalMsg').textContent = msg;
-  const btn = document.getElementById('btnSendWa');
-  if (p.tel) { btn.textContent='WhatsApp ↗'; btn.classList.remove('no-tel'); }
-  else { btn.textContent='Sin número registrado'; btn.classList.add('no-tel'); }
+function openModal(pid){
+  const p=PROVIDERS.find(x=>x.id===pid),msg=buildMessage(pid);
+  if(!msg)return;
+  currentModalProvider=pid;
+  document.getElementById('modalTitle').textContent=p.name;
+  document.getElementById('modalSubtitle').textContent=[p.tel?`📞 ${fmtTel(p.tel)}`:null,PAGO_LABEL[p.pago]].filter(Boolean).join('  ·  ');
+  document.getElementById('modalMsg').textContent=msg;
+  const btn=document.getElementById('btnSendWa');
+  if(p.tel){btn.textContent='WhatsApp ↗';btn.classList.remove('no-tel');}
+  else{btn.textContent='Sin número registrado';btn.classList.add('no-tel');}
   document.getElementById('modalOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
 
-function showAllMessages() {
-  const active = PROVIDERS.filter(p => Object.keys(state[p.id]).length > 0);
-  if (!active.length) return;
-  currentModalProvider = null;
-  const fecha = now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
-  let txt = `PEDIDOS — ${fecha.toUpperCase()}\n${'─'.repeat(34)}\n\n`;
-  active.forEach(p => {
-    txt += `📦 ${p.name.toUpperCase()}`;
-    if (p.tel) txt += `  (${fmtTel(p.tel)})`;
-    txt += `\n`;
-    Object.entries(state[p.id]).forEach(([idx,qty]) => txt += `• ${p.products[idx]}: ${qty}\n`);
-    txt += '\n';
+window.showAllMessages=()=>{
+  const active=PROVIDERS.filter(p=>Object.keys(state[p.id]).length>0);
+  if(!active.length)return;
+  currentModalProvider=null;
+  const fecha=now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+  let txt=`PEDIDOS — ${fecha.toUpperCase()}\n${'─'.repeat(34)}\n\n`;
+  active.forEach(p=>{
+    txt+=`📦 ${p.name.toUpperCase()}`;
+    if(p.tel)txt+=`  (${fmtTel(p.tel)})`;
+    txt+=`\n`;
+    Object.entries(state[p.id]).forEach(([idx,qty])=>txt+=`• ${p.products[idx]}: ${qty}\n`);
+    txt+='\n';
   });
-  document.getElementById('modalTitle').textContent = 'Resumen de pedidos';
-  document.getElementById('modalSubtitle').textContent = `${active.length} proveedores con pedido esta semana`;
-  document.getElementById('modalMsg').textContent = txt.trim();
-  const btn = document.getElementById('btnSendWa');
-  btn.textContent = 'Enviar uno por uno ↑'; btn.classList.add('no-tel');
+  document.getElementById('modalTitle').textContent='Resumen de pedidos';
+  document.getElementById('modalSubtitle').textContent=`${active.length} proveedores con pedido`;
+  document.getElementById('modalMsg').textContent=txt.trim();
+  document.getElementById('btnSendWa').textContent='Enviar uno por uno ↑';
+  document.getElementById('btnSendWa').classList.add('no-tel');
   document.getElementById('modalOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
+  document.body.style.overflow='hidden';
+};
 
-function closeModal(e) { if (e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
-function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
-
-function copyMessage() {
+window.closeModal=(e)=>{if(e.target===document.getElementById('modalOverlay'))closeModalDirect();};
+window.closeModalDirect=()=>{document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';};
+window.copyMessage=()=>{
   navigator.clipboard.writeText(document.getElementById('modalMsg').textContent).then(()=>{
-    const b = document.querySelector('.btn-copy');
-    b.textContent='✅ Copiado!';
-    setTimeout(()=>b.textContent='📋 Copiar', 2000);
+    const b=document.querySelector('.btn-copy');b.textContent='✅ Copiado!';
+    setTimeout(()=>b.textContent='📋 Copiar',2000);
+  });
+};
+window.sendWhatsApp=()=>{
+  if(!currentModalProvider)return;
+  const p=PROVIDERS.find(x=>x.id===currentModalProvider);
+  if(!p.tel)return;
+  window.open(`https://wa.me/54${p.tel.replace(/\D/g,'')}?text=${encodeURIComponent(document.getElementById('modalMsg').textContent)}`,'_blank');
+};
+
+function updateSummaryBar(){
+  const active=PROVIDERS.filter(p=>Object.keys(state[p.id]).length>0);
+  const bar=document.getElementById('summaryBar');
+  if(active.length>0){
+    const total=active.reduce((s,p)=>s+Object.keys(state[p.id]).length,0);
+    document.getElementById('summaryTitle').textContent=`${active.length} proveedor${active.length!==1?'es':''} con pedido`;
+    document.getElementById('summaryDetail').textContent=`${total} producto${total!==1?'s':''} seleccionado${total!==1?'s':''}`;
+    bar.classList.add('visible');
+  } else bar.classList.remove('visible');
+}
+
+// PRECIOS
+function buildPreciosGrid(){
+  const grid=document.getElementById('preciosGrid');
+  PROVIDERS.forEach(p=>{
+    const withP=p.products.filter((_,i)=>prices[key(p.id,i)]).length;
+    const card=document.createElement('div');
+    card.className='precio-card';
+    card.innerHTML=`
+      <div class="precio-card-header">
+        <span class="precio-card-title">${p.name}</span>
+        <span class="precio-card-meta">${withP}/${p.products.length} con precio</span>
+      </div>
+      ${p.products.map((prod,i)=>`
+        <div class="precio-row">
+          <span class="precio-prod-name">${prod}</span>
+          <button class="precio-hist-btn" onclick="showProdHistorial('${key(p.id,i)}','${prod}','${p.name}')">Historial</button>
+          <input class="precio-input" type="number" min="0" placeholder="$0"
+            value="${prices[key(p.id,i)]||''}"
+            onchange="handlePriceChange('${key(p.id,i)}','${p.name}','${prod}',this)"
+            onfocus="this.select()">
+        </div>`).join('')}`;
+    grid.appendChild(card);
   });
 }
 
-function sendWhatsApp() {
-  if (!currentModalProvider) return;
-  const p = PROVIDERS.find(x=>x.id===currentModalProvider);
-  if (!p.tel) return;
-  const tel = p.tel.replace(/\D/g,'');
-  const txt = document.getElementById('modalMsg').textContent;
-  window.open(`https://wa.me/54${tel}?text=${encodeURIComponent(txt)}`, '_blank');
+window.handlePriceChange=async(k,provName,prodName,input)=>{
+  const newPrice=parseFloat(input.value);
+  if(isNaN(newPrice)||newPrice<0){input.value='';return;}
+  const oldPrice=prices[k]||null;
+  prices[k]=newPrice;
+  try {
+    await setDoc(doc(db,'data','prices'),prices);
+    await addDoc(collection(db,'historial'),{
+      key:k, provName, prodName, oldPrice, newPrice,
+      userEmail:'usuario', userName:'Usuario',
+      timestamp:serverTimestamp(),
+    });
+    await refreshHistorial();
+  } catch(e){ console.warn('Firebase error',e); }
+  // Update price in pedidos card
+  const ppEl=document.getElementById(`pp-${k.replace('_','-')}`);
+  if(ppEl){ppEl.textContent=fmtPrice(newPrice);ppEl.classList.add('has-price');}
+  showToast('Precio guardado ✓');
+};
+
+async function refreshHistorial(){
+  try {
+    const q=query(collection(db,'historial'),orderBy('timestamp','desc'));
+    const snap=await getDocs(q);
+    historial=snap.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(e){}
 }
 
-function updateSummaryBar() {
-  const active = PROVIDERS.filter(p => Object.keys(state[p.id]).length > 0);
-  const bar = document.getElementById('summaryBar');
-  if (active.length > 0) {
-    const total = active.reduce((s,p)=>s+Object.keys(state[p.id]).length, 0);
-    document.getElementById('summaryTitle').textContent = `${active.length} proveedor${active.length!==1?'es':''} con pedido`;
-    document.getElementById('summaryDetail').textContent = `${total} producto${total!==1?'s':''} seleccionado${total!==1?'s':''}`;
-    bar.classList.add('visible');
-  } else { bar.classList.remove('visible'); }
+window.exportCSV=()=>{
+  let csv='Proveedor,Producto,Precio\n';
+  PROVIDERS.forEach(p=>p.products.forEach((prod,i)=>{
+    const pr=prices[key(p.id,i)]||'';
+    csv+=`"${p.name}","${prod}","${pr}"\n`;
+  }));
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`precios_${now.toISOString().slice(0,10)}.csv`;
+  a.click();
+};
+
+// HISTORIAL
+function buildHistorialFilters(){
+  const sel=document.getElementById('filtProvHist');
+  PROVIDERS.forEach(p=>{
+    const opt=document.createElement('option');
+    opt.value=p.id; opt.textContent=p.name;
+    sel.appendChild(opt);
+  });
 }
+
+window.renderHistorial=()=>{
+  const provFilter=document.getElementById('filtProvHist').value;
+  const dayFilter=parseInt(document.getElementById('filtPeriodHist').value);
+  const body=document.getElementById('histBody');
+  const cutoff=dayFilter>0?Date.now()-dayFilter*864e5:0;
+  const rows=historial.filter(h=>{
+    if(provFilter&&!h.key.startsWith(provFilter))return false;
+    if(cutoff&&h.timestamp?.seconds*1000<cutoff)return false;
+    return true;
+  });
+  if(!rows.length){body.innerHTML='<div class="hist-empty">No hay registros para este período</div>';return;}
+  body.innerHTML=rows.map(h=>{
+    const ts=h.timestamp?.seconds?new Date(h.timestamp.seconds*1000):new Date();
+    const diff=h.oldPrice?(h.newPrice-h.oldPrice)/h.oldPrice*100:null;
+    const diffStr=diff!==null?(diff>0?`▲${diff.toFixed(1)}%`:`▼${Math.abs(diff).toFixed(1)}%`):'Nuevo';
+    const diffCls=diff===null?'':diff>0?'hist-price-up':'hist-price-down';
+    return`<div class="hist-row">
+      <span>${h.prodName}</span>
+      <span>${h.provName}</span>
+      <span class="hist-price-old">${h.oldPrice?fmtPrice(h.oldPrice):'—'}</span>
+      <span class="hist-price-new ${diffCls}">${fmtPrice(h.newPrice)} <small>${diffStr}</small></span>
+      <span class="hist-date">${ts.toLocaleDateString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
+    </div>`;
+  }).join('');
+};
+
+window.showProdHistorial=(k,prodName,provName)=>{
+  const records=historial.filter(h=>h.key===k);
+  document.getElementById('histModalTitle').textContent=prodName;
+  document.getElementById('histModalSub').textContent=provName;
+  const list=document.getElementById('histModalList');
+  if(!records.length){list.innerHTML='<div class="hist-empty">Sin historial de cambios</div>';}
+  else{
+    list.innerHTML=records.map(h=>{
+      const ts=h.timestamp?.seconds?new Date(h.timestamp.seconds*1000):new Date();
+      return`<div class="hist-entry">
+        <div>
+          <div style="font-size:14px;font-weight:600;font-family:'DM Mono',monospace">${fmtPrice(h.newPrice)}</div>
+          <div class="hist-entry-info">${h.oldPrice?`Antes: ${fmtPrice(h.oldPrice)}`:'Primer registro'}</div>
+        </div>
+        <div class="hist-date">${ts.toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'2-digit'})}</div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('histModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+};
+
+window.closeHistModal=(e)=>{
+  if(!e||e.target===document.getElementById('histModalOverlay')){
+    document.getElementById('histModalOverlay').classList.remove('open');
+    document.body.style.overflow='';
+  }
+};
+
+init();
 </script>
 </body>
 </html>
