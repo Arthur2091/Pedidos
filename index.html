@@ -79,6 +79,28 @@
   .section-sub { font-size: 13px; color: var(--ink2); margin-top: 2px; }
   .btn-export { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer; transition: all 0.15s; }
   .btn-export:hover { background: var(--surface2); }
+  .btn-nuevo-prov { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 8px; border: none; background: var(--ink); color: #fff; cursor: pointer; transition: all 0.15s; }
+  .btn-nuevo-prov:hover { background: #333; }
+  /* EDIT INSUMO */
+  .precio-row:hover .btn-edit-insumo { opacity: 1; }
+  .btn-edit-insumo { font-size: 12px; background: none; border: none; cursor: pointer; color: var(--ink3); opacity: 0; transition: all 0.15s; padding: 2px 5px; border-radius: 4px; flex-shrink: 0; }
+  .btn-edit-insumo:hover { color: var(--info); background: var(--info-light); opacity: 1; }
+  .edit-insumo-inline { display: flex; align-items: center; gap: 6px; flex: 1; }
+  .edit-insumo-inp { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 3px 8px; border: 1.5px solid var(--accent); border-radius: 6px; background: #fff; color: var(--ink); outline: none; }
+  .btn-confirm-edit { font-size: 13px; background: var(--accent); border: none; color: #fff; border-radius: 5px; cursor: pointer; padding: 3px 8px; }
+  .btn-cancel-edit { font-size: 13px; background: none; border: 1px solid var(--border); color: var(--ink2); border-radius: 5px; cursor: pointer; padding: 3px 8px; }
+  /* MODAL NUEVO PROVEEDOR */
+  .nprov-modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 440px; padding: 28px; display: flex; flex-direction: column; gap: 16px; animation: slideUp 0.2s ease; }
+  .nprov-title { font-size: 16px; font-weight: 600; }
+  .nprov-field { display: flex; flex-direction: column; gap: 6px; }
+  .nprov-label { font-size: 12px; font-weight: 600; color: var(--ink2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .nprov-input { font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; transition: border-color 0.15s; }
+  .nprov-input:focus { border-color: var(--accent); background: #fff; }
+  .nprov-sel { font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); outline: none; cursor: pointer; }
+  .nprov-actions { display: flex; gap: 10px; margin-top: 4px; }
+  .btn-nprov-save { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; padding: 11px; border-radius: 10px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
+  .btn-nprov-save:hover { background: #235c42; }
+  .btn-nprov-cancel { font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 18px; border-radius: 10px; border: 1.5px solid var(--border); background: transparent; color: var(--ink2); cursor: pointer; }
   .precios-grid { max-width: 1200px; margin: 0 auto; padding: 8px 16px 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
   .precio-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
   .precio-card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
@@ -262,8 +284,59 @@
       <div class="section-title">Precios por proveedor</div>
       <div class="section-sub">Actualizá los precios de cada producto</div>
     </div>
-    <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-nuevo-prov" onclick="abrirModalNuevoProv()">+ Nuevo proveedor</button>
+      <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
+    </div>
   </div>
+
+<!-- MODAL NUEVO PROVEEDOR -->
+<div class="rec-modal-overlay" id="nprovModalOverlay" onclick="cerrarModalNuevoProv(event)">
+  <div class="nprov-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="nprov-title">Nuevo proveedor</span>
+      <button class="modal-close" onclick="cerrarModalNuevoProv()">×</button>
+    </div>
+    <div class="nprov-field">
+      <label class="nprov-label">Nombre</label>
+      <input class="nprov-input" id="nprovNombre" type="text" placeholder="Ej: La Anónima">
+    </div>
+    <div class="nprov-field">
+      <label class="nprov-label">Teléfono (sin 0 ni 15)</label>
+      <input class="nprov-input" id="nprovTel" type="text" placeholder="Ej: 1145678900">
+    </div>
+    <div class="nprov-field">
+      <label class="nprov-label">Categoría</label>
+      <select class="nprov-sel" id="nprovCat">
+        <option value="almacen">Almacén</option>
+        <option value="reposteria">Repostería</option>
+        <option value="lacteos">Lácteos</option>
+        <option value="fiambres">Fiambres</option>
+        <option value="especias">Especias</option>
+        <option value="carnes">Carnes</option>
+        <option value="congelados">Congelados</option>
+        <option value="cafe">Café</option>
+        <option value="descartables">Descartables</option>
+        <option value="limpieza">Limpieza</option>
+        <option value="verduleria">Verdulería</option>
+        <option value="bebidas">Bebidas</option>
+        <option value="otros">Otros</option>
+      </select>
+    </div>
+    <div class="nprov-field">
+      <label class="nprov-label">Condición de pago</label>
+      <select class="nprov-sel" id="nprovPago">
+        <option value="transfer">Transferencia</option>
+        <option value="efectivo">Efectivo</option>
+        <option value="ambos">Transfer / Efectivo</option>
+      </select>
+    </div>
+    <div class="nprov-actions">
+      <button class="btn-nprov-cancel" onclick="cerrarModalNuevoProv()">Cancelar</button>
+      <button class="btn-nprov-save" onclick="guardarNuevoProv()">Agregar proveedor</button>
+    </div>
+  </div>
+</div>
   <div class="precios-grid" id="preciosGrid"></div>
 </div>
 
@@ -456,7 +529,153 @@ function fmtPrice(p) { return p?`$${Number(p).toLocaleString('es-AR')}`:'—'; }
 function key(pid,idx) { return `${pid}_${idx}`; }
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
 
-// ── RECETAS ──
+// ── NUEVO PROVEEDOR ──
+window.abrirModalNuevoProv = () => {
+  document.getElementById('nprovNombre').value = '';
+  document.getElementById('nprovTel').value = '';
+  document.getElementById('nprovModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('nprovNombre').focus(), 100);
+};
+
+window.cerrarModalNuevoProv = (e) => {
+  if (e && e.target !== document.getElementById('nprovModalOverlay')) return;
+  document.getElementById('nprovModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+window.guardarNuevoProv = async () => {
+  const nombre = document.getElementById('nprovNombre').value.trim();
+  const tel    = document.getElementById('nprovTel').value.trim().replace(/\D/g,'');
+  const cat    = document.getElementById('nprovCat').value;
+  const pago   = document.getElementById('nprovPago').value;
+  if (!nombre) { showToast('⚠ Ingresá un nombre'); return; }
+
+  // Create id from name
+  const id = nombre.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  if (PROVIDERS.find(p => p.id === id)) { showToast('⚠ Ya existe un proveedor con ese nombre'); return; }
+
+  const newProv = { id, name: nombre, cat, tel, pago, products: [] };
+  PROVIDERS.push(newProv);
+  state[id] = {};
+
+  // Save to Firebase
+  try {
+    await setDoc(doc(db, 'customProviders', id), { name: nombre, cat, tel, pago, products: [], createdAt: serverTimestamp() });
+  } catch(e) { console.warn('Could not save provider', e); }
+
+  // Add to Pedidos
+  buildSingleCard(newProv);
+  // Add to filter bar if cat is new
+  const existingFilter = document.querySelector(`.filter-btn[data-filter="${cat}"]`);
+  if (!existingFilter) {
+    const CATS = { almacen:"Almacén", reposteria:"Repostería", lacteos:"Lácteos", fiambres:"Fiambres", especias:"Especias", carnes:"Carnes", congelados:"Congelados", cafe:"Café", descartables:"Descartables", limpieza:"Limpieza", verduleria:"Verdulería", bebidas:"Bebidas", otros:"Otros" };
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn'; btn.dataset.filter = cat;
+    btn.textContent = CATS[cat] || cat;
+    btn.onclick = () => setFilter(cat);
+    document.getElementById('filterBar').appendChild(btn);
+  }
+  // Add to Precios
+  addProviderToPrecios(newProv);
+
+  cerrarModalNuevoProv();
+  showToast(`✓ Proveedor "${nombre}" agregado`);
+};
+
+function buildSingleCard(p) {
+  const PAGO_LABEL = { transfer:"Transferencia", efectivo:"Efectivo", ambos:"Transfer / Efectivo" };
+  const PAGO_CHIP  = { transfer:"chip chip-transfer", efectivo:"chip chip-efectivo", ambos:"chip chip-ambos" };
+  const telChip = p.tel ? `<a class="chip chip-tel" href="tel:+54${p.tel.replace(/\D/g,'')}">📞 ${fmtTel(p.tel)}</a>` : `<span class="chip chip-notel">Sin teléfono</span>`;
+  const pagoChip = `<span class="${PAGO_CHIP[p.pago]}">${PAGO_LABEL[p.pago]}</span>`;
+  const card = document.createElement('div');
+  card.className = 'provider-card'; card.dataset.cat = p.cat; card.id = 'card-' + p.id;
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-header-top">
+        <span class="card-title">${p.name}</span>
+        <span class="card-count" id="count-${p.id}">${p.products.length} productos</span>
+      </div>
+      <div class="card-contact">${telChip}${pagoChip}</div>
+    </div>
+    <div class="product-list" id="plist-card-${p.id}"></div>
+    <div class="card-footer">
+      <button class="btn-clear" onclick="clearProvider('${p.id}')">Limpiar</button>
+      <button class="btn-whatsapp" id="wa-${p.id}" onclick="sendDirect('${p.id}')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Enviar por WhatsApp
+      </button>
+    </div>`;
+  document.getElementById('cardsContainer').appendChild(card);
+}
+
+function addProviderToPrecios(p) {
+  const grid = document.getElementById('preciosGrid');
+  const card = document.createElement('div');
+  card.className = 'precio-card'; card.id = `pcard-${p.id}`;
+  card.innerHTML = `
+    <div class="precio-card-header">
+      <span class="precio-card-title">${p.name}</span>
+      <span class="precio-card-meta" id="pmeta-${p.id}">0/0 con precio</span>
+    </div>
+    <div id="plist-${p.id}"></div>
+    <button class="btn-add-insumo" onclick="toggleAddInsumo('${p.id}')">
+      <span>＋</span> Agregar insumo
+    </button>
+    <div class="add-insumo-form" id="form-${p.id}">
+      <input class="add-insumo-input" id="input-${p.id}" type="text" placeholder="Nombre del insumo..." onkeydown="if(event.key==='Enter')confirmAddInsumo('${p.id}')">
+      <button class="btn-confirm-insumo" onclick="confirmAddInsumo('${p.id}')">Agregar</button>
+      <button class="btn-cancel-insumo" onclick="toggleAddInsumo('${p.id}')">Cancelar</button>
+    </div>`;
+  grid.appendChild(card);
+}
+
+// ── EDITAR NOMBRE INSUMO ──
+window.editarNombreInsumo = (pid, idx) => {
+  const k = key(pid, idx);
+  const row = document.getElementById(`prow-${k}`);
+  const nameEl = document.getElementById(`pname-${k}`);
+  const nombreActual = nameEl.textContent;
+  // Replace name span with inline input
+  nameEl.outerHTML = `<div class="edit-insumo-inline" id="einline-${k}">
+    <input class="edit-insumo-inp" id="einp-${k}" value="${nombreActual}" onkeydown="if(event.key==='Enter')confirmarEditInsumo('${pid}',${idx});if(event.key==='Escape')cancelarEditInsumo('${pid}',${idx})">
+    <button class="btn-confirm-edit" onclick="confirmarEditInsumo('${pid}',${idx})">✓</button>
+    <button class="btn-cancel-edit" onclick="cancelarEditInsumo('${pid}',${idx})">✕</button>
+  </div>`;
+  setTimeout(() => {
+    const inp = document.getElementById(`einp-${k}`);
+    if (inp) { inp.focus(); inp.select(); }
+  }, 50);
+};
+
+window.confirmarEditInsumo = async (pid, idx) => {
+  const k = key(pid, idx);
+  const inp = document.getElementById(`einp-${k}`);
+  if (!inp) return;
+  const nuevoNombre = inp.value.trim();
+  if (!nuevoNombre) { showToast('⚠ Ingresá un nombre'); return; }
+  const p = PROVIDERS.find(x => x.id === pid);
+  const nombreViejo = p.products[idx];
+  p.products[idx] = nuevoNombre;
+  // Update UI
+  const inline = document.getElementById(`einline-${k}`);
+  if (inline) inline.outerHTML = `<span class="precio-prod-name" id="pname-${k}">${nuevoNombre}</span>`;
+  // Update pedidos card
+  const prodNameEl = document.querySelector(`#row-${pid}-${idx} .product-name`);
+  if (prodNameEl) prodNameEl.textContent = nuevoNombre;
+  // Save
+  await saveCustomProducts(pid, p.products);
+  showToast(`✓ "${nombreViejo}" → "${nuevoNombre}"`);
+};
+
+window.cancelarEditInsumo = (pid, idx) => {
+  const k = key(pid, idx);
+  const p = PROVIDERS.find(x => x.id === pid);
+  const inline = document.getElementById(`einline-${k}`);
+  if (inline) inline.outerHTML = `<span class="precio-prod-name" id="pname-${k}">${p.products[idx]}</span>`;
+};
+
+
 let recetas = [];
 let editingRecetaId = null;
 
@@ -692,6 +911,7 @@ async function init() {
     const hsnap = await getDocs(q);
     historial = hsnap.docs.map(d=>({id:d.id,...d.data()}));
     await loadCustomProducts();
+    await loadCustomProviders();
     await loadRecetas();
   } catch(e) { console.warn('Firebase offline, using local mode'); }
   buildFilterBar();
@@ -899,7 +1119,8 @@ function buildPreciosGrid(){
 function renderPrecioRow(pid, provName, prod, i){
   const k=key(pid,i);
   return`<div class="precio-row" id="prow-${k}">
-    <span class="precio-prod-name">${prod}</span>
+    <span class="precio-prod-name" id="pname-${k}">${prod}</span>
+    <button class="btn-edit-insumo" onclick="editarNombreInsumo('${pid}',${i})" title="Renombrar">✏️</button>
     <button class="precio-hist-btn" onclick="showProdHistorial('${k}','${prod}','${provName}')">Historial</button>
     <input class="precio-input" type="number" min="0" placeholder="$0"
       value="${prices[k]||''}"
@@ -989,6 +1210,19 @@ async function saveCustomProducts(pid, products){
   try {
     await setDoc(doc(db,'customProducts', pid), { products, updatedAt: serverTimestamp() });
   } catch(e){ console.warn('Could not save custom products', e); }
+}
+
+async function loadCustomProviders(){
+  try {
+    const snap = await getDocs(collection(db,'customProviders'));
+    snap.docs.forEach(d => {
+      const data = d.data();
+      if (!PROVIDERS.find(p => p.id === d.id)) {
+        PROVIDERS.push({ id: d.id, name: data.name, cat: data.cat, tel: data.tel||'', pago: data.pago||'transfer', products: data.products||[] });
+        state[d.id] = {};
+      }
+    });
+  } catch(e) { console.warn('Could not load custom providers', e); }
 }
 
 async function loadCustomProducts(){
