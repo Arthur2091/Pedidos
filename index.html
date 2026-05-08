@@ -1288,20 +1288,34 @@ function updatePrecioMeta(pid){
 
 async function saveCustomProducts(pid, products){
   try {
+    // Always save to customProducts for product name tracking
     await setDoc(doc(db,'customProducts', pid), { products, updatedAt: serverTimestamp() });
+    // If it's also a custom provider, update products there too
+    const cpSnap = await getDoc(doc(db,'customProviders', pid));
+    if (cpSnap.exists()) {
+      await setDoc(doc(db,'customProviders', pid), { ...cpSnap.data(), products, updatedAt: serverTimestamp() });
+    }
   } catch(e){ console.warn('Could not save custom products', e); }
 }
 
 async function loadCustomProviders(){
   try {
     const snap = await getDocs(collection(db,'customProviders'));
-    snap.docs.forEach(d => {
-      const data = d.data();
+    for (const d of snap.docs) {
       if (!PROVIDERS.find(p => p.id === d.id)) {
-        PROVIDERS.push({ id: d.id, name: data.name, cat: data.cat, tel: data.tel||'', pago: data.pago||'transfer', products: data.products||[] });
+        const data = d.data();
+        // Also check customProducts for latest product list
+        let products = data.products || [];
+        try {
+          const cpSnap = await getDoc(doc(db,'customProducts', d.id));
+          if (cpSnap.exists() && cpSnap.data().products?.length >= products.length) {
+            products = cpSnap.data().products;
+          }
+        } catch(e) {}
+        PROVIDERS.push({ id: d.id, name: data.name, cat: data.cat, tel: data.tel||'', pago: data.pago||'transfer', products });
         state[d.id] = {};
       }
-    });
+    }
   } catch(e) { console.warn('Could not load custom providers', e); }
 }
 
