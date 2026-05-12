@@ -215,18 +215,15 @@
   .ins-list { padding: 6px 0; max-height: 280px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
   .ins-list::-webkit-scrollbar { width: 4px; }
   .ins-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  .ins-row { display: flex; align-items: center; gap: 10px; padding: 7px 18px; transition: background 0.1s; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .ins-row { display: flex; align-items: center; gap: 10px; padding: 7px 18px; transition: background 0.1s; border-bottom: 1px solid var(--border); }
   .ins-row:last-child { border-bottom: none; }
   .ins-row:hover { background: var(--surface2); }
-  .ins-row.expanded { background: var(--surface2); border-bottom: none; }
   .ins-name { flex: 1; font-size: 13px; color: var(--ink); }
   .ins-prov { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; }
   .ins-price { font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 600; color: var(--accent); min-width: 70px; text-align: right; }
   .ins-price.no-price { color: var(--ink3); font-weight: 400; font-style: italic; }
-  .ins-expand-icon { font-size: 11px; color: var(--ink3); transition: transform 0.2s; flex-shrink: 0; }
-  .ins-row.expanded .ins-expand-icon { transform: rotate(90deg); }
-  .ins-pres-panel { display: none; padding: 10px 18px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); gap: 10px; align-items: center; flex-wrap: wrap; }
-  .ins-pres-panel.open { display: flex; }
+  .ins-edit-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; opacity: 0.4; transition: opacity 0.15s; flex-shrink: 0; }
+  .ins-edit-btn:hover { opacity: 1; background: var(--surface2); }
   .ins-pres-label { font-size: 12px; color: var(--ink2); font-weight: 500; }
   .ins-pres-qty { width: 70px; font-family: 'DM Mono', monospace; font-size: 13px; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--ink); outline: none; text-align: right; -moz-appearance: textfield; transition: border-color 0.15s; }
   .ins-pres-qty::-webkit-inner-spin-button { -webkit-appearance: none; }
@@ -386,8 +383,6 @@
       <button class="nav-tab" data-view="insumos" onclick="switchView('insumos')">🗂 <span>Insumos</span></button>
     </nav>
   </div>
-</header>
-
 <!-- PEDIDOS -->
 <div id="viewPedidos">
   <div class="filter-bar" id="filterBar">
@@ -556,6 +551,50 @@
       <button onclick="crearInsumoDesdeSearch()" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:7px 16px;border-radius:7px;border:none;background:var(--accent);color:#fff;cursor:pointer">+ Crear insumo</button>
     </div>
     <div class="ins-grid" id="insGrid"></div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR INSUMO -->
+<div class="rec-modal-overlay" id="editInsumoOverlay">
+  <div style="background:var(--surface);border-radius:16px;padding:28px;width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px;animation:slideUp 0.2s ease">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:16px;font-weight:600">Editar insumo</span>
+      <button class="modal-close" onclick="cerrarEditInsumo()">×</button>
+    </div>
+    <div>
+      <div class="rec-field-label">Nombre</div>
+      <input class="rec-field-input" id="eiNombre" type="text" placeholder="Nombre del insumo">
+    </div>
+    <div>
+      <div class="rec-field-label">Proveedor</div>
+      <select class="rec-field-input" id="eiProv" style="cursor:pointer"></select>
+    </div>
+    <div>
+      <div class="rec-field-label">Presentación</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Cant." id="eiPresQty"
+          style="width:80px" onfocus="this.select()" oninput="updateEiEquiv()">
+        <select class="ins-pres-unit" id="eiPresUnit" onchange="updateEiEquiv()">
+          <option value="kg">kg</option>
+          <option value="g">g</option>
+          <option value="L">L</option>
+          <option value="ml">ml</option>
+          <option value="u">u</option>
+        </select>
+        <span style="color:var(--ink3);font-size:13px">$</span>
+        <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Precio" id="eiPrecio"
+          style="width:100px" onfocus="this.select()" oninput="updateEiEquiv()">
+        <span style="font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace" id="eiEquiv"></span>
+      </div>
+    </div>
+    <div>
+      <div class="rec-field-label">Categoría</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px" id="eiCatGrid"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-cancel-rec" onclick="cerrarEditInsumo()">Cancelar</button>
+      <button class="btn-save-rec" onclick="guardarEditInsumo()">Guardar cambios</button>
+    </div>
   </div>
 </div>
 
@@ -1558,28 +1597,13 @@ window.renderInsumos = () => {
               const pres = presentations[ins.k] || {};
               const presStr = pres.qty ? `${pres.qty} ${pres.unit}` : '';
               return `
-            <div class="ins-row" id="insrow-${ins.k}" onclick="toggleInsPanel('${ins.k}')">
-              <span class="ins-expand-icon">▶</span>
+            <div class="ins-row" id="insrow-${ins.k}">
               <span class="ins-name">${ins.name}</span>
               <span class="ins-prov">${ins.prov}</span>
               ${presStr ? `<span class="ins-pres-saved">${presStr}</span>` : ''}
               <span class="ins-price ${ins.pr ? '' : 'no-price'}">${ins.pr ? '$' + Math.round(ins.pr).toLocaleString('es-AR') : 'sin precio'}</span>
-              <button class="ins-assign-btn" onclick="event.stopPropagation();asignarCategoria('${ins.k}','${ins.name}')">mover</button>
-            </div>
-            <div class="ins-pres-panel" id="inspanel-${ins.k}">
-              <span class="ins-pres-label">Presentación:</span>
-              <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Cant." value="${pres.qty||''}"
-                id="inspresqty-${ins.k}" onfocus="this.select()"
-                oninput="updateInsPresEquiv('${ins.k}')">
-              <select class="ins-pres-unit" id="inspresunit-${ins.k}" onchange="updateInsPresEquiv('${ins.k}')">
-                ${['kg','g','L','ml','u'].map(u=>`<option value="${u}" ${pres.unit===u?'selected':''}>${u}</option>`).join('')}
-              </select>
-              <span class="ins-pres-label" style="margin-left:4px">$</span>
-              <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Precio" value="${ins.pr||''}"
-                id="insprecio-${ins.k}" onfocus="this.select()"
-                oninput="updateInsPresEquiv('${ins.k}')">
-              <span class="ins-pres-equiv" id="insequiv-${ins.k}">${pres.qty&&pres.unit&&ins.pr?calcCostoBase(ins.pr,pres.qty,pres.unit)||'':''}</span>
-              <button class="btn-save-pres" onclick="saveInsPresentation('${ins.k}','${ins.name}','${ins.prov}')">Guardar</button>
+              <button class="ins-assign-btn" onclick="asignarCategoria('${ins.k}','${ins.name}')">mover</button>
+              <button class="ins-edit-btn" onclick="abrirEditInsumo('${ins.k}')" title="Editar">✏️</button>
             </div>`}).join('')}
       </div>`;
     grid.appendChild(card);
@@ -1777,6 +1801,141 @@ window.guardarNuevoInsumo = async () => {
   if (plist) plist.innerHTML = p.products.map((prod,i) => renderPrecioRow(pid, p.name, prod, i)).join('');
   updatePrecioMeta(pid);
 };
+
+// ── EDITAR INSUMO ──
+let editInsumoKey = null;
+
+window.abrirEditInsumo = (k) => {
+  editInsumoKey = k;
+  const parts = k.split('_');
+  const pid = parts.slice(0, -1).join('_');
+  const idx = parseInt(parts[parts.length - 1]);
+  const p = PROVIDERS.find(x => x.id === pid);
+  if (!p) return;
+  const nombre = p.products[idx] || '';
+  const pres = presentations[k] || {};
+  const precio = prices[k] || '';
+  const catActual = insumoCategories[k] || 'otros';
+
+  document.getElementById('eiNombre').value = nombre;
+  // Populate providers
+  document.getElementById('eiProv').innerHTML = PROVIDERS.map(pr =>
+    `<option value="${pr.id}" ${pr.id === pid ? 'selected' : ''}>${pr.name}</option>`
+  ).join('');
+  document.getElementById('eiPresQty').value = pres.qty || '';
+  document.getElementById('eiPresUnit').value = pres.unit || 'kg';
+  document.getElementById('eiPrecio').value = precio || '';
+  document.getElementById('eiEquiv').textContent = '';
+  // Populate categories
+  document.getElementById('eiCatGrid').innerHTML = CATEGORIAS_RECETA.map(cat =>
+    `<button class="cat-picker-btn ${cat.id === catActual ? 'current' : ''}" data-eicat="${cat.id}" onclick="selectEiCat('${cat.id}')">
+      <span style="font-size:16px">${cat.icon}</span>${cat.label}
+    </button>`
+  ).join('');
+  updateEiEquiv();
+  document.getElementById('editInsumoOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('eiNombre').focus(), 100);
+};
+
+window.selectEiCat = (catId) => {
+  document.querySelectorAll('[data-eicat]').forEach(b => b.classList.toggle('current', b.dataset.eicat === catId));
+};
+
+window.updateEiEquiv = () => {
+  const qty = parseFloat(document.getElementById('eiPresQty')?.value);
+  const unit = document.getElementById('eiPresUnit')?.value;
+  const precio = parseFloat(document.getElementById('eiPrecio')?.value);
+  const equiv = document.getElementById('eiEquiv');
+  if (!equiv) return;
+  if (qty && unit && precio) equiv.textContent = calcCostoBase(precio, qty, unit) || '';
+  else equiv.textContent = UNIDAD_EQUIV?.[unit] || '';
+};
+
+window.cerrarEditInsumo = () => {
+  document.getElementById('editInsumoOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  editInsumoKey = null;
+};
+
+window.guardarEditInsumo = async () => {
+  if (!editInsumoKey) return;
+  const k = editInsumoKey;
+  const parts = k.split('_');
+  const oldPid = parts.slice(0, -1).join('_');
+  const oldIdx = parseInt(parts[parts.length - 1]);
+  const oldP = PROVIDERS.find(x => x.id === oldPid);
+  if (!oldP) return;
+
+  const nuevoNombre = document.getElementById('eiNombre').value.trim();
+  const nuevoPid = document.getElementById('eiProv').value;
+  const presQty = parseFloat(document.getElementById('eiPresQty').value);
+  const presUnit = document.getElementById('eiPresUnit').value;
+  const nuevoPrecio = parseFloat(document.getElementById('eiPrecio').value);
+  const catBtn = document.querySelector('[data-eicat].current');
+  const nuevaCat = catBtn?.dataset.eicat || insumoCategories[k] || 'otros';
+
+  if (!nuevoNombre) { showToast('⚠ Ingresá un nombre'); return; }
+
+  // 1. Rename in old provider
+  oldP.products[oldIdx] = nuevoNombre;
+  oldP.products.sort((a,b) => a.localeCompare(b,'es',{sensitivity:'base'}));
+
+  // 2. If provider changed, move product
+  if (nuevoPid !== oldPid) {
+    oldP.products.splice(oldP.products.indexOf(nuevoNombre), 1);
+    const newP = PROVIDERS.find(x => x.id === nuevoPid);
+    if (newP) {
+      newP.products.push(nuevoNombre);
+      newP.products.sort((a,b) => a.localeCompare(b,'es',{sensitivity:'base'}));
+      await saveCustomProducts(nuevoPid, newP.products);
+    }
+  }
+  await saveCustomProducts(oldPid, oldP.products);
+
+  // 3. New key
+  const newP2 = PROVIDERS.find(x => x.id === nuevoPid);
+  const newIdx = newP2?.products.indexOf(nuevoNombre) ?? oldIdx;
+  const newK = key(nuevoPid, newIdx);
+
+  // 4. Move prices, presentations, categories to new key
+  if (newK !== k) {
+    if (prices[k]) { prices[newK] = prices[k]; delete prices[k]; }
+    if (presentations[k]) { presentations[newK] = presentations[k]; delete presentations[k]; }
+    if (insumoCategories[k]) { insumoCategories[newK] = insumoCategories[k]; delete insumoCategories[k]; }
+  }
+
+  // 5. Save presentation
+  if (presQty && presUnit) presentations[newK] = { qty: presQty, unit: presUnit };
+  try { await setDoc(doc(db,'data','presentations'), presentations); } catch(e) {}
+
+  // 6. Save price
+  if (nuevoPrecio > 0) {
+    const oldPrice = prices[newK] || null;
+    prices[newK] = nuevoPrecio;
+    try {
+      await setDoc(doc(db,'data','prices'), prices);
+      await addDoc(collection(db,'historial'), {
+        key: newK, provName: nuevoPid, prodName: nuevoNombre,
+        oldPrice, newPrice: nuevoPrecio,
+        userEmail: 'usuario', userName: 'Usuario',
+        timestamp: serverTimestamp(),
+      });
+    } catch(e) {}
+  }
+
+  // 7. Save category
+  await saveInsumoCategory(newK, nuevaCat);
+
+  cerrarEditInsumo();
+  showToast(`✓ "${nuevoNombre}" actualizado`);
+  renderInsumos();
+  rebuildPedidosCard(oldPid);
+  if (nuevoPid !== oldPid) rebuildPedidosCard(nuevoPid);
+  buildPreciosGrid();
+};
+
+window.toggleInsPanel = () => {}; // deprecated
 
 window.filtrarInsumos = (term) => {
   insumosSearchTerm = term;
@@ -2533,6 +2692,7 @@ document.addEventListener('keydown', (e) => {
     if (document.getElementById('recModalOverlay').classList.contains('open')) cerrarModalReceta();
     if (document.getElementById('catPickerOverlay').classList.contains('open')) cerrarCatPicker();
     if (document.getElementById('nuevoInsumoOverlay')?.classList.contains('open')) cerrarModalNuevoInsumo();
+    if (document.getElementById('editInsumoOverlay')?.classList.contains('open')) cerrarEditInsumo();
   }
 });
 </script>
