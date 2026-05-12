@@ -619,7 +619,7 @@
     </div>
     <div>
       <div class="rec-field-label">Presentación <span style="font-weight:400;color:var(--ink3)">(opcional)</span></div>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Cant." id="niPresQty"
           style="width:80px" onfocus="this.select()" oninput="updateNiEquiv()">
         <select class="ins-pres-unit" id="niPresUnit" onchange="updateNiEquiv()">
@@ -629,6 +629,9 @@
           <option value="ml">ml</option>
           <option value="u">u</option>
         </select>
+        <span style="color:var(--ink3);font-size:13px">$</span>
+        <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Precio" id="niPrecio"
+          style="width:100px" onfocus="this.select()" oninput="updateNiEquiv()">
         <span style="font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace" id="niEquiv"></span>
       </div>
     </div>
@@ -759,12 +762,12 @@ import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, orderBy, 
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB76R4iR0eLPHz1n6BXbuC6JDeAgaUKC8I",
-  authDomain: "arthur-sistema-pedidos-dev.firebaseapp.com",
-  projectId: "arthur-sistema-pedidos-dev",
-  storageBucket: "arthur-sistema-pedidos-dev.firebasestorage.app",
-  messagingSenderId: "901390401278",
-  appId: "1:901390401278:web:bd11702dcb995f1abcefaf"
+  apiKey: "AIzaSyC_dkvixcRfzRMxXTAAxjcDuhbsMajApxI",
+  authDomain: "arthur-sistema-pedidos.firebaseapp.com",
+  projectId: "arthur-sistema-pedidos",
+  storageBucket: "arthur-sistema-pedidos.firebasestorage.app",
+  messagingSenderId: "1039699696450",
+  appId: "1:1039699696450:web:f4af86b423eb1b2e8706db"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -1694,6 +1697,7 @@ window.abrirModalNuevoInsumo = () => {
   // Reset fields
   document.getElementById('niNombre').value = '';
   document.getElementById('niPresQty').value = '';
+  document.getElementById('niPrecio').value = '';
   document.getElementById('niEquiv').textContent = '';
   document.getElementById('niNuevoProvWrap').style.display = 'none';
   document.getElementById('niNuevoProvNombre').value = '';
@@ -1715,8 +1719,14 @@ window.selectNiCat = (catId) => {
 window.updateNiEquiv = () => {
   const qty = parseFloat(document.getElementById('niPresQty')?.value);
   const unit = document.getElementById('niPresUnit')?.value;
+  const precio = parseFloat(document.getElementById('niPrecio')?.value);
   const equiv = document.getElementById('niEquiv');
-  if (equiv) equiv.textContent = UNIDAD_EQUIV?.[unit] || '';
+  if (!equiv) return;
+  if (qty && unit && precio) {
+    equiv.textContent = calcCostoBase(precio, qty, unit) || '';
+  } else {
+    equiv.textContent = UNIDAD_EQUIV?.[unit] || '';
+  }
 };
 
 window.guardarNuevoInsumo = async () => {
@@ -1725,6 +1735,7 @@ window.guardarNuevoInsumo = async () => {
   const catBtn = document.querySelector('[data-nicat].current');
   const presQty = parseFloat(document.getElementById('niPresQty')?.value);
   const presUnit = document.getElementById('niPresUnit')?.value;
+  const niPrecio = parseFloat(document.getElementById('niPrecio')?.value);
   if (!nombre) { showToast('⚠ Ingresá un nombre'); return; }
   if (!catBtn) { showToast('⚠ Seleccioná una categoría'); return; }
   const catId = catBtn.dataset.nicat;
@@ -1762,6 +1773,18 @@ window.guardarNuevoInsumo = async () => {
   if (presQty && presUnit) {
     presentations[k] = { qty: presQty, unit: presUnit };
     try { await setDoc(doc(db,'data','presentations'), presentations); } catch(e) {}
+  }
+  if (niPrecio && niPrecio > 0) {
+    prices[k] = niPrecio;
+    try {
+      await setDoc(doc(db,'data','prices'), prices);
+      await addDoc(collection(db,'historial'), {
+        key: k, provName: p.name, prodName: nombre,
+        oldPrice: null, newPrice: niPrecio,
+        userEmail: 'usuario', userName: 'Usuario',
+        timestamp: serverTimestamp(),
+      });
+    } catch(e) {}
   }
   cerrarModalNuevoInsumo();
   showToast(`✓ "${nombre}" agregado${presQty ? ` · ${presQty} ${presUnit}` : ''}`);
@@ -2044,11 +2067,8 @@ async function refreshFromFirebase(silent = true) {
   } catch(e) {}
 }
 
-// Auto-refresh cada 2 minutos en background
-setInterval(() => refreshFromFirebase(true), 2 * 60 * 1000);
-
-// SWITCH VIEW — refresca datos al cambiar de solapa
-window.switchView = async (view) => {
+// SWITCH VIEW — solo muestra la vista, sin refrescar datos
+window.switchView = (view) => {
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.view===view));
   document.getElementById('viewPedidos').style.display  = view==='pedidos'  ?'block':'none';
   document.getElementById('viewPrecios').style.display  = view==='precios'  ?'block':'none';
@@ -2056,12 +2076,9 @@ window.switchView = async (view) => {
   document.getElementById('viewRecetas').style.display  = view==='recetas'  ?'block':'none';
   document.getElementById('viewInsumos').style.display  = view==='insumos'  ?'block':'none';
   document.getElementById('summaryBar').style.display   = view==='pedidos'  ?''    :'none';
-  // Refresh data for the selected view
-  if (view==='historial') { await refreshFromFirebase(); renderHistorial(); }
-  else if (view==='recetas') { await refreshFromFirebase(); renderRecetas(); }
-  else if (view==='insumos') { await refreshFromFirebase(); renderInsumos(); }
-  else if (view==='precios') { await refreshFromFirebase(); buildPreciosGrid(); }
-  else if (view==='pedidos') { await refreshFromFirebase(); }
+  if(view==='historial') renderHistorial();
+  if(view==='recetas') renderRecetas();
+  if(view==='insumos') renderInsumos();
 };
 
 // FILTER BAR
@@ -2607,7 +2624,8 @@ window.closeHistModal=(e)=>{
 
 init();
 
-document.addEventListener('keydown', (e) => {
+// Auto-refresh cada 2 minutos en background sin interrumpir lo que se está cargando
+setInterval(() => refreshFromFirebase(true), 2 * 60 * 1000); (e) => {
   if (e.key === 'Escape') {
     if (document.getElementById('recModalOverlay').classList.contains('open')) cerrarModalReceta();
     if (document.getElementById('catPickerOverlay').classList.contains('open')) cerrarCatPicker();
