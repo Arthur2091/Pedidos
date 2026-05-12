@@ -1272,6 +1272,7 @@ window.guardarReceta = async () => {
       const ref = await addDoc(collection(db,'recetas'), receta);
       receta.id = ref.id;
       recetas.push(receta);
+      recetas.sort((a,b)=>a.nombre.localeCompare(b.nombre,'es',{sensitivity:'base'}));
     }
   } catch(e) {
     receta.id = editingRecetaId || Date.now().toString();
@@ -1302,7 +1303,7 @@ window.eliminarReceta = async (id) => {
 async function loadRecetas() {
   try {
     const snap = await getDocs(collection(db,'recetas'));
-    recetas = snap.docs.map(d=>({id:d.id,...d.data()}));
+    recetas = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es',{sensitivity:'base'}));
   } catch(e) { recetas = []; }
 }
 
