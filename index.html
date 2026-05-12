@@ -742,9 +742,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
-let currentUser = null;
 
 let prices = {};
 let historial = [];
@@ -1891,6 +1888,7 @@ function saveToCache() {
     }));
   } catch(e) {}
 }
+
 
 async function init() {
   // Try cache first — show UI instantly
