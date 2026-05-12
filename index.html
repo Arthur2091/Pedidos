@@ -361,11 +361,6 @@
 </head>
 <body>
 
-    <div style="font-size:20px;font-weight:600;margin-bottom:8px">Acceso no autorizado</div>
-    <div style="font-size:14px;color:var(--ink2);margin-bottom:24px" id="deniedMsg">Tu cuenta no tiene acceso.</div>
-    <button id="btnLogoutDenied" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px 24px;border-radius:10px;border:1.5px solid var(--border);background:transparent;cursor:pointer;color:var(--ink)">Cerrar sesión</button>
-  </div>
-</div>
 <div id="loaderScreen" style="position:fixed;inset:0;background:var(--ink);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999">
   <div style="font-size:36px">🛒</div>
   <div style="color:#fff;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif">Sistema de Pedidos</div>
@@ -391,7 +386,7 @@
       <button class="nav-tab" data-view="insumos" onclick="switchView('insumos')">🗂 <span>Insumos</span></button>
     </nav>
   </div>
-  </header>
+</header>
 
 <!-- PEDIDOS -->
 <div id="viewPedidos">
@@ -595,7 +590,7 @@
     </div>
     <div>
       <div class="rec-field-label">Presentación <span style="font-weight:400;color:var(--ink3)">(opcional)</span></div>
-      <div style="display:flex;gap:8px;align-items:center">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Cant." id="niPresQty"
           style="width:80px" onfocus="this.select()" oninput="updateNiEquiv()">
         <select class="ins-pres-unit" id="niPresUnit" onchange="updateNiEquiv()">
@@ -605,6 +600,9 @@
           <option value="ml">ml</option>
           <option value="u">u</option>
         </select>
+        <span style="color:var(--ink3);font-size:13px">$</span>
+        <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Precio" id="niPrecio"
+          style="width:100px" onfocus="this.select()" oninput="updateNiEquiv()">
         <span style="font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace" id="niEquiv"></span>
       </div>
     </div>
@@ -733,7 +731,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-
 const firebaseConfig = {
   apiKey: "AIzaSyC_dkvixcRfzRMxXTAAxjcDuhbsMajApxI",
   authDomain: "arthur-sistema-pedidos.firebaseapp.com",
@@ -824,11 +821,8 @@ async function refreshFromFirebase(silent = true) {
   } catch(e) {}
 }
 
-// Auto-refresh cada 2 minutos en background
-setInterval(() => refreshFromFirebase(true), 2 * 60 * 1000);
-
-// SWITCH VIEW — refresca datos al cambiar de solapa
-window.switchView = async (view) => {
+// SWITCH VIEW — solo muestra la vista, sin refrescar datos
+window.switchView = (view) => {
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.view===view));
   document.getElementById('viewPedidos').style.display  = view==='pedidos'  ?'block':'none';
   document.getElementById('viewPrecios').style.display  = view==='precios'  ?'block':'none';
@@ -836,12 +830,9 @@ window.switchView = async (view) => {
   document.getElementById('viewRecetas').style.display  = view==='recetas'  ?'block':'none';
   document.getElementById('viewInsumos').style.display  = view==='insumos'  ?'block':'none';
   document.getElementById('summaryBar').style.display   = view==='pedidos'  ?''    :'none';
-  // Refresh data for the selected view
-  if (view==='historial') { await refreshFromFirebase(); renderHistorial(); }
-  else if (view==='recetas') { await refreshFromFirebase(); renderRecetas(); }
-  else if (view==='insumos') { await refreshFromFirebase(); renderInsumos(); }
-  else if (view==='precios') { await refreshFromFirebase(); buildPreciosGrid(); }
-  else if (view==='pedidos') { await refreshFromFirebase(); }
+  if(view==='historial') renderHistorial();
+  if(view==='recetas') renderRecetas();
+  if(view==='insumos') renderInsumos();
 };
 
 // FILTER BAR
@@ -1387,7 +1378,8 @@ window.closeHistModal=(e)=>{
 
 init();
 
-document.addEventListener('keydown', (e) => {
+// Auto-refresh cada 2 minutos en background sin interrumpir lo que se está cargando
+setInterval(() => refreshFromFirebase(true), 2 * 60 * 1000); (e) => {
   if (e.key === 'Escape') {
     if (document.getElementById('recModalOverlay').classList.contains('open')) cerrarModalReceta();
     if (document.getElementById('catPickerOverlay').classList.contains('open')) cerrarCatPicker();
