@@ -215,13 +215,28 @@
   .ins-list { padding: 6px 0; max-height: 280px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
   .ins-list::-webkit-scrollbar { width: 4px; }
   .ins-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  .ins-row { display: flex; align-items: center; gap: 10px; padding: 7px 18px; transition: background 0.1s; border-bottom: 1px solid var(--border); }
+  .ins-row { display: flex; align-items: center; gap: 10px; padding: 7px 18px; transition: background 0.1s; border-bottom: 1px solid var(--border); cursor: pointer; }
   .ins-row:last-child { border-bottom: none; }
   .ins-row:hover { background: var(--surface2); }
+  .ins-row.expanded { background: var(--surface2); border-bottom: none; }
   .ins-name { flex: 1; font-size: 13px; color: var(--ink); }
   .ins-prov { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; }
   .ins-price { font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 600; color: var(--accent); min-width: 70px; text-align: right; }
   .ins-price.no-price { color: var(--ink3); font-weight: 400; font-style: italic; }
+  .ins-expand-icon { font-size: 11px; color: var(--ink3); transition: transform 0.2s; flex-shrink: 0; }
+  .ins-row.expanded .ins-expand-icon { transform: rotate(90deg); }
+  .ins-pres-panel { display: none; padding: 10px 18px 12px; background: var(--surface2); border-bottom: 1px solid var(--border); gap: 10px; align-items: center; flex-wrap: wrap; }
+  .ins-pres-panel.open { display: flex; }
+  .ins-pres-label { font-size: 12px; color: var(--ink2); font-weight: 500; }
+  .ins-pres-qty { width: 70px; font-family: 'DM Mono', monospace; font-size: 13px; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--ink); outline: none; text-align: right; -moz-appearance: textfield; transition: border-color 0.15s; }
+  .ins-pres-qty::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .ins-pres-qty:focus { border-color: var(--accent); background: #fff; }
+  .ins-pres-unit { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--ink); outline: none; cursor: pointer; }
+  .ins-pres-unit:focus { border-color: var(--accent); }
+  .ins-pres-equiv { font-size: 11px; color: var(--ink3); font-family: 'DM Mono', monospace; }
+  .btn-save-pres { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 7px; border: none; background: var(--accent); color: #fff; cursor: pointer; transition: background 0.15s; }
+  .btn-save-pres:hover { background: #235c42; }
+  .ins-pres-saved { font-size: 11px; color: var(--accent); font-family: 'DM Mono', monospace; }
   .ins-empty { padding: 20px 18px; font-size: 13px; color: var(--ink3); font-style: italic; text-align: center; }
   .ins-assign-btn { font-size: 11px; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--ink3); cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
   .ins-assign-btn:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
@@ -346,8 +361,30 @@
 </head>
 <body>
 
-<!-- LOADER -->
-<div id="loaderScreen" style="position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999">
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" style="display:flex;position:fixed;inset:0;background:var(--ink);z-index:1000;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--surface);border-radius:20px;padding:48px 40px;width:100%;max-width:400px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.3)">
+    <div style="font-size:40px;margin-bottom:12px">🛒</div>
+    <div style="font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:6px">Sistema de Pedidos</div>
+    <div style="font-size:14px;color:var(--ink2);margin-bottom:36px">Iniciá sesión para continuar</div>
+    <button id="btnLoginGoogle" style="width:100%;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;padding:14px 20px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;margin-bottom:12px">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Iniciar sesión con Google
+    </button>
+    <div style="font-size:12px;color:var(--ink3)">Solo usuarios autorizados pueden acceder</div>
+  </div>
+</div>
+
+<!-- ACCESS DENIED -->
+<div id="deniedScreen" style="display:none;position:fixed;inset:0;background:var(--ink);z-index:1000;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--surface);border-radius:20px;padding:48px 40px;width:100%;max-width:400px;text-align:center">
+    <div style="font-size:40px;margin-bottom:16px">🚫</div>
+    <div style="font-size:20px;font-weight:600;margin-bottom:8px">Acceso no autorizado</div>
+    <div style="font-size:14px;color:var(--ink2);margin-bottom:24px" id="deniedMsg">Tu cuenta no tiene acceso.</div>
+    <button id="btnLogoutDenied" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px 24px;border-radius:10px;border:1.5px solid var(--border);background:transparent;cursor:pointer;color:var(--ink)">Cerrar sesión</button>
+  </div>
+</div>
+<div id="loaderScreen" style="position:fixed;inset:0;background:var(--ink);display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999">
   <div style="font-size:36px">🛒</div>
   <div style="color:#fff;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif">Sistema de Pedidos</div>
   <div style="display:flex;gap:6px;margin-top:4px">
@@ -372,7 +409,12 @@
       <button class="nav-tab" data-view="insumos" onclick="switchView('insumos')">🗂 <span>Insumos</span></button>
     </nav>
   </div>
-  <span class="header-date" id="fecha-hdr"></span>
+  <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <img id="userAvatar" src="" style="display:none;width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);object-fit:cover">
+    <span id="userInitial" style="display:none;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:600;align-items:center;justify-content:center"></span>
+    <span id="userName" style="font-size:12px;color:#aaa;font-family:'DM Mono',monospace;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <button onclick="logoutAndReset()" style="font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:rgba(255,255,255,0.7);cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">Salir</button>
+  </div>
 </header>
 
 <!-- PEDIDOS -->
@@ -532,9 +574,72 @@
         <div class="ins-title">🗂 Insumos por categoría</div>
         <div class="ins-sub">Todos los insumos organizados por uso en recetas</div>
       </div>
-      <input class="ins-search" id="insSearch" type="text" placeholder="🔍 Buscar insumo..." oninput="filtrarInsumos(this.value)">
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="ins-search" id="insSearch" type="text" placeholder="🔍 Buscar insumo..." oninput="filtrarInsumos(this.value)"
+          onkeydown="if(event.key==='Escape'){this.value='';filtrarInsumos('')}">
+        <button onclick="abrirModalNuevoInsumo()" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;border:none;background:var(--ink);color:#fff;cursor:pointer;white-space:nowrap">+ Nuevo</button>
+      </div>
+    </div>
+    <div id="insCreateBar" style="display:none;background:var(--accent-light);border-radius:10px;padding:10px 16px;margin-bottom:16px;display:none;align-items:center;justify-content:space-between;gap:12px">
+      <span style="font-size:13px;color:var(--accent)">¿No encontrás <strong id="insCreateTerm"></strong>?</span>
+      <button onclick="crearInsumoDesdeSearch()" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:7px 16px;border-radius:7px;border:none;background:var(--accent);color:#fff;cursor:pointer">+ Crear insumo</button>
     </div>
     <div class="ins-grid" id="insGrid"></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO INSUMO -->
+<div class="rec-modal-overlay" id="nuevoInsumoOverlay">
+  <div style="background:var(--surface);border-radius:16px;padding:28px;width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px;animation:slideUp 0.2s ease;overflow-y:auto;max-height:90vh">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:16px;font-weight:600">Nuevo insumo</span>
+      <button class="modal-close" onclick="cerrarModalNuevoInsumo()">×</button>
+    </div>
+    <div>
+      <div class="rec-field-label">Nombre</div>
+      <input class="rec-field-input" id="niNombre" type="text" placeholder="Ej: Harina 000">
+    </div>
+    <div>
+      <div class="rec-field-label">Proveedor</div>
+      <div style="display:flex;gap:8px">
+        <select class="rec-field-input" id="niProv" style="cursor:pointer;flex:1" onchange="checkNuevoProv()"></select>
+      </div>
+      <div id="niNuevoProvWrap" style="display:none;margin-top:8px;display:none">
+        <input class="rec-field-input" id="niNuevoProvNombre" type="text" placeholder="Nombre del nuevo proveedor"
+          style="margin-bottom:6px">
+        <div style="display:flex;gap:8px">
+          <input class="rec-field-input" id="niNuevoProvTel" type="text" placeholder="Teléfono (opcional)">
+          <select class="rec-field-input" id="niNuevoProvPago" style="cursor:pointer">
+            <option value="transfer">Transferencia</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="ambos">Ambos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="rec-field-label">Presentación <span style="font-weight:400;color:var(--ink3)">(opcional)</span></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Cant." id="niPresQty"
+          style="width:80px" onfocus="this.select()" oninput="updateNiEquiv()">
+        <select class="ins-pres-unit" id="niPresUnit" onchange="updateNiEquiv()">
+          <option value="kg">kg</option>
+          <option value="g">g</option>
+          <option value="L">L</option>
+          <option value="ml">ml</option>
+          <option value="u">u</option>
+        </select>
+        <span style="font-size:11px;color:var(--ink3);font-family:'DM Mono',monospace" id="niEquiv"></span>
+      </div>
+    </div>
+    <div>
+      <div class="rec-field-label">Categoría</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px" id="niCatGrid"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-cancel-rec" onclick="cerrarModalNuevoInsumo()">Cancelar</button>
+      <button class="btn-save-rec" onclick="guardarNuevoInsumo()">Agregar insumo</button>
+    </div>
   </div>
 </div>
 
@@ -651,18 +756,22 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, orderBy, getDocs, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC_dkvixcRfzRMxXTAAxjcDuhbsMajApxI",
-  authDomain: "arthur-sistema-pedidos.firebaseapp.com",
-  projectId: "arthur-sistema-pedidos",
-  storageBucket: "arthur-sistema-pedidos.firebasestorage.app",
-  messagingSenderId: "1039699696450",
-  appId: "1:1039699696450:web:f4af86b423eb1b2e8706db"
+  apiKey: "AIzaSyB76R4iR0eLPHz1n6BXbuC6JDeAgaUKC8I",
+  authDomain: "arthur-sistema-pedidos-dev.firebaseapp.com",
+  projectId: "arthur-sistema-pedidos-dev",
+  storageBucket: "arthur-sistema-pedidos-dev.firebasestorage.app",
+  messagingSenderId: "901390401278",
+  appId: "1:901390401278:web:bd11702dcb995f1abcefaf"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+let currentUser = null;
 
 let prices = {};
 let historial = [];
@@ -699,13 +808,18 @@ PROVIDERS.forEach(p => {
 let currentModalProvider = null;
 const now = new Date();
 
-// Date header
-document.getElementById('fecha-hdr').textContent = now.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
-
 function fmtTel(t) { const c=t.replace(/\D/g,''); return c.length===10?`${c.slice(0,2)} ${c.slice(2,6)}-${c.slice(6)}`:t; }
 function fmtPrice(p) { return p?`$${Number(p).toLocaleString('es-AR')}`:'—'; }
 function key(pid,idx) { return `${pid}_${idx}`; }
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+// Búsqueda por múltiples palabras — "az sob" encuentra "Azucar en sobre"
+function multiMatch(text, term) {
+  if (!term.trim()) return true;
+  const words = term.toLowerCase().trim().split(/\s+/);
+  const t = text.toLowerCase();
+  return words.every(w => t.includes(w));
+}
 
 // ── NUEVO PROVEEDOR ──
 window.abrirModalNuevoProv = () => {
@@ -985,11 +1099,10 @@ window.crearInsumoDesdeReceta = async () => {
 window.buscarInsumo = (term) => {
   const results = document.getElementById('ingSearchResults');
   if (!term.trim()) { results.style.display = 'none'; results.innerHTML = ''; return; }
-  const t = term.toLowerCase();
   const matches = [];
   PROVIDERS.forEach(p => {
     p.products.forEach((prod, i) => {
-      if (prod.toLowerCase().includes(t)) {
+      if (multiMatch(prod, term)) {
         matches.push({ pid: p.id, idx: i, nombre: prod, provName: p.name });
       }
     });
@@ -1451,10 +1564,11 @@ window.renderInsumos = () => {
       allInsumos.push({ k, name: prod, prov: p.name, cat, pr });
     });
   });
+  allInsumos.sort((a,b) => a.name.localeCompare(b.name, 'es', {sensitivity:'base'}));
 
   // Filter by search
   const filtered = insumosSearchTerm
-    ? allInsumos.filter(ins => ins.name.toLowerCase().includes(insumosSearchTerm.toLowerCase()) || ins.prov.toLowerCase().includes(insumosSearchTerm.toLowerCase()))
+    ? allInsumos.filter(ins => multiMatch(ins.name, insumosSearchTerm) || multiMatch(ins.prov, insumosSearchTerm))
     : allInsumos;
 
   CATEGORIAS_RECETA.forEach(cat => {
@@ -1470,21 +1584,211 @@ window.renderInsumos = () => {
       <div class="ins-list" id="inslist-${cat.id}">
         ${items.length === 0
           ? `<div class="ins-empty">Sin insumos asignados</div>`
-          : items.map(ins => `
-            <div class="ins-row">
+          : items.map(ins => {
+              const pres = presentations[ins.k] || {};
+              const presStr = pres.qty ? `${pres.qty} ${pres.unit}` : '';
+              return `
+            <div class="ins-row" id="insrow-${ins.k}" onclick="toggleInsPanel('${ins.k}')">
+              <span class="ins-expand-icon">▶</span>
               <span class="ins-name">${ins.name}</span>
               <span class="ins-prov">${ins.prov}</span>
+              ${presStr ? `<span class="ins-pres-saved">${presStr}</span>` : ''}
               <span class="ins-price ${ins.pr ? '' : 'no-price'}">${ins.pr ? '$' + Math.round(ins.pr).toLocaleString('es-AR') : 'sin precio'}</span>
-              <button class="ins-assign-btn" onclick="asignarCategoria('${ins.k}','${ins.name}')">mover</button>
-            </div>`).join('')}
+              <button class="ins-assign-btn" onclick="event.stopPropagation();asignarCategoria('${ins.k}','${ins.name}')">mover</button>
+            </div>
+            <div class="ins-pres-panel" id="inspanel-${ins.k}">
+              <span class="ins-pres-label">Presentación:</span>
+              <input class="ins-pres-qty" type="number" min="0" step="any" placeholder="Cant." value="${pres.qty||''}"
+                id="inspresqty-${ins.k}" onfocus="this.select()"
+                oninput="updateInsPresEquiv('${ins.k}')">
+              <select class="ins-pres-unit" id="inspresunit-${ins.k}" onchange="updateInsPresEquiv('${ins.k}')">
+                ${['kg','g','L','ml','u'].map(u=>`<option value="${u}" ${pres.unit===u?'selected':''}>${u}</option>`).join('')}
+              </select>
+              <span class="ins-pres-equiv" id="insequiv-${ins.k}">${pres.qty&&pres.unit?calcCostoBase(ins.pr,pres.qty,pres.unit)||'':''}</span>
+              <button class="btn-save-pres" onclick="saveInsPresentation('${ins.k}','${ins.name}')">Guardar</button>
+            </div>`}).join('')}
       </div>`;
     grid.appendChild(card);
   });
 };
 
+window.toggleInsPanel = (k) => {
+  const row = document.getElementById(`insrow-${k}`);
+  const panel = document.getElementById(`inspanel-${k}`);
+  if (!row || !panel) return;
+  const open = panel.classList.contains('open');
+  panel.classList.toggle('open', !open);
+  row.classList.toggle('expanded', !open);
+  if (!open) document.getElementById(`inspresqty-${k}`)?.focus();
+};
+
+window.updateInsPresEquiv = (k) => {
+  const qty = parseFloat(document.getElementById(`inspresqty-${k}`)?.value);
+  const unit = document.getElementById(`inspresunit-${k}`)?.value;
+  const pr = prices[k];
+  const equiv = document.getElementById(`insequiv-${k}`);
+  if (!equiv) return;
+  if (qty && unit && pr) {
+    equiv.textContent = calcCostoBase(pr, qty, unit) || '';
+  } else {
+    equiv.textContent = UNIDAD_EQUIV?.[unit] || '';
+  }
+};
+
+window.saveInsPresentation = async (k, nombre) => {
+  const qty = parseFloat(document.getElementById(`inspresqty-${k}`)?.value);
+  const unit = document.getElementById(`inspresunit-${k}`)?.value;
+  if (!qty || !unit) { showToast('⚠ Ingresá cantidad y unidad'); return; }
+  presentations[k] = { qty, unit };
+  try {
+    await setDoc(doc(db,'data','presentations'), presentations);
+  } catch(e) {}
+  // Close panel
+  document.getElementById(`inspanel-${k}`)?.classList.remove('open');
+  document.getElementById(`insrow-${k}`)?.classList.remove('expanded');
+  // Update saved label
+  const savedEl = document.getElementById(`insrow-${k}`)?.querySelector('.ins-pres-saved');
+  if (savedEl) { savedEl.textContent = `${qty} ${unit}`; }
+  else {
+    const row = document.getElementById(`insrow-${k}`);
+    if (row) {
+      const span = document.createElement('span');
+      span.className = 'ins-pres-saved';
+      span.textContent = `${qty} ${unit}`;
+      row.insertBefore(span, row.querySelector('.ins-price'));
+    }
+  }
+  // Refresh precios row
+  const parts = k.split('_');
+  const ppEl = document.getElementById(`pp-${parts[0]}-${parts[1]}`);
+  if (ppEl && prices[k]) { ppEl.textContent = fmtPrice(prices[k]); ppEl.classList.add('has-price'); }
+  showToast(`✓ Presentación guardada: ${qty} ${unit}`);
+};
+
+window.crearInsumoDesdeSearch = () => {
+  const term = document.getElementById('insSearch').value.trim();
+  abrirModalNuevoInsumo();
+  setTimeout(() => {
+    const input = document.getElementById('niNombre');
+    if (input) { input.value = term; input.select(); }
+  }, 150);
+};
+
+window.checkNuevoProv = () => {
+  const val = document.getElementById('niProv').value;
+  const wrap = document.getElementById('niNuevoProvWrap');
+  if (wrap) wrap.style.display = val === '__nuevo__' ? 'block' : 'none';
+};
+
+window.abrirModalNuevoInsumo = () => {
+  // Populate providers with "Nuevo proveedor" option
+  const provSel = document.getElementById('niProv');
+  provSel.innerHTML = PROVIDERS.map(p => `<option value="${p.id}">${p.name}</option>`).join('') +
+    `<option value="__nuevo__">＋ Nuevo proveedor...</option>`;
+  // Populate categories
+  const catGrid = document.getElementById('niCatGrid');
+  catGrid.innerHTML = CATEGORIAS_RECETA.map(cat => `
+    <button class="cat-picker-btn" data-nicat="${cat.id}" onclick="selectNiCat('${cat.id}')">
+      <span style="font-size:16px">${cat.icon}</span>${cat.label}
+    </button>`).join('');
+  // Reset fields
+  document.getElementById('niNombre').value = '';
+  document.getElementById('niPresQty').value = '';
+  document.getElementById('niEquiv').textContent = '';
+  document.getElementById('niNuevoProvWrap').style.display = 'none';
+  document.getElementById('niNuevoProvNombre').value = '';
+  document.getElementById('niNuevoProvTel').value = '';
+  document.getElementById('nuevoInsumoOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('niNombre').focus(), 100);
+};
+
+window.cerrarModalNuevoInsumo = () => {
+  document.getElementById('nuevoInsumoOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+window.selectNiCat = (catId) => {
+  document.querySelectorAll('[data-nicat]').forEach(b => b.classList.toggle('current', b.dataset.nicat === catId));
+};
+
+window.updateNiEquiv = () => {
+  const qty = parseFloat(document.getElementById('niPresQty')?.value);
+  const unit = document.getElementById('niPresUnit')?.value;
+  const equiv = document.getElementById('niEquiv');
+  if (equiv) equiv.textContent = UNIDAD_EQUIV?.[unit] || '';
+};
+
+window.guardarNuevoInsumo = async () => {
+  const nombre = document.getElementById('niNombre').value.trim();
+  let pid = document.getElementById('niProv').value;
+  const catBtn = document.querySelector('[data-nicat].current');
+  const presQty = parseFloat(document.getElementById('niPresQty')?.value);
+  const presUnit = document.getElementById('niPresUnit')?.value;
+  if (!nombre) { showToast('⚠ Ingresá un nombre'); return; }
+  if (!catBtn) { showToast('⚠ Seleccioná una categoría'); return; }
+  const catId = catBtn.dataset.nicat;
+
+  // Crear nuevo proveedor si corresponde
+  if (pid === '__nuevo__') {
+    const provNombre = document.getElementById('niNuevoProvNombre').value.trim();
+    if (!provNombre) { showToast('⚠ Ingresá el nombre del proveedor'); return; }
+    const provTel = document.getElementById('niNuevoProvTel').value.trim().replace(/\D/g,'');
+    const provPago = document.getElementById('niNuevoProvPago').value;
+    pid = provNombre.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+    if (!PROVIDERS.find(p => p.id === pid)) {
+      const newProv = { id: pid, name: provNombre, cat: 'otros', tel: provTel, pago: provPago, products: [] };
+      PROVIDERS.push(newProv);
+      state[pid] = {};
+      try {
+        await setDoc(doc(db,'customProviders', pid), { name: provNombre, cat: 'otros', tel: provTel, pago: provPago, products: [], createdAt: serverTimestamp() });
+      } catch(e) {}
+      buildSingleCard(newProv);
+      addProviderToPrecios(newProv);
+      showToast(`✓ Proveedor "${provNombre}" creado`);
+    }
+  }
+
+  const p = PROVIDERS.find(x => x.id === pid);
+  if (p.products.map(x => x.toLowerCase()).includes(nombre.toLowerCase())) {
+    showToast('⚠ Ya existe ese insumo en este proveedor'); return;
+  }
+  p.products.push(nombre);
+  p.products.sort((a,b) => a.localeCompare(b,'es',{sensitivity:'base'}));
+  await saveCustomProducts(pid, p.products);
+  const newIdx = p.products.indexOf(nombre);
+  const k = key(pid, newIdx);
+  await saveInsumoCategory(k, catId);
+  if (presQty && presUnit) {
+    presentations[k] = { qty: presQty, unit: presUnit };
+    try { await setDoc(doc(db,'data','presentations'), presentations); } catch(e) {}
+  }
+  cerrarModalNuevoInsumo();
+  showToast(`✓ "${nombre}" agregado${presQty ? ` · ${presQty} ${presUnit}` : ''}`);
+  renderInsumos();
+  rebuildPedidosCard(pid);
+  const plist = document.getElementById(`plist-${pid}`);
+  if (plist) plist.innerHTML = p.products.map((prod,i) => renderPrecioRow(pid, p.name, prod, i)).join('');
+  updatePrecioMeta(pid);
+};
+
 window.filtrarInsumos = (term) => {
   insumosSearchTerm = term;
   renderInsumos();
+  const createBar = document.getElementById('insCreateBar');
+  const createTerm = document.getElementById('insCreateTerm');
+  if (!createBar) return;
+  if (term.trim()) {
+    const hasMatch = PROVIDERS.some(p => p.products.some(prod => multiMatch(prod, term)));
+    if (!hasMatch) {
+      createTerm.textContent = `"${term}"`;
+      createBar.style.display = 'flex';
+    } else {
+      createBar.style.display = 'none';
+    }
+  } else {
+    createBar.style.display = 'none';
+  }
 };
 
 let catPickerKey = null;
@@ -1579,6 +1883,89 @@ function saveToCache() {
   } catch(e) {}
 }
 
+// ── AUTENTICACIÓN ──
+// Lista de emails autorizados — agregá los que necesitás
+const AUTHORIZED_EMAILS = [
+  'hernan.layno@gmail.com',
+  'temujin13@gmail.com',
+  'r2d2@arthur.com.ar',
+  'juan.layno@gmail.com',
+  'info@arthur.com.ar',
+];
+
+function showScreen(id) {
+  ['loginScreen','deniedScreen'].forEach(s => {
+    const el = document.getElementById(s);
+    if (el) el.style.display = s === id ? 'flex' : 'none';
+  });
+}
+
+function setupUserUI(user) {
+  currentUser = user;
+  if (user.photoURL) {
+    const avatar = document.getElementById('userAvatar');
+    avatar.src = user.photoURL;
+    avatar.style.display = 'block';
+  } else {
+    const initial = document.getElementById('userInitial');
+    initial.textContent = (user.displayName || user.email)[0].toUpperCase();
+    initial.style.display = 'flex';
+  }
+  const nameEl = document.getElementById('userName');
+  if (nameEl) nameEl.textContent = user.displayName || user.email;
+}
+
+window.loginGoogle = async () => {
+  try {
+    await signInWithRedirect(auth, googleProvider);
+  } catch(e) {
+    console.error('Login error:', e);
+  }
+};
+
+window.logoutAndReset = async () => {
+  sessionStorage.removeItem(CACHE_KEY);
+  await signOut(auth);
+};
+
+// Bind buttons via event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  const btnLogin = document.getElementById('btnLoginGoogle');
+  if (btnLogin) btnLogin.addEventListener('click', async () => {
+    try {
+      btnLogin.disabled = true;
+      btnLogin.innerHTML = '<span style="opacity:0.6">Abriendo Google...</span>';
+      await signInWithPopup(auth, googleProvider);
+    } catch(e) {
+      console.error('Login error:', e.code);
+      btnLogin.disabled = false;
+      btnLogin.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Iniciar sesión con Google`;
+    }
+  });
+  const btnDenied = document.getElementById('btnLogoutDenied');
+  if (btnDenied) btnDenied.addEventListener('click', () => { sessionStorage.removeItem(CACHE_KEY); signOut(auth); });
+});
+
+// Auth state listener — controla todo el flujo
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    hideLoader();
+    showScreen('loginScreen');
+    return;
+  }
+  if (!AUTHORIZED_EMAILS.includes(user.email.toLowerCase())) {
+    hideLoader();
+    document.getElementById('deniedMsg').textContent = `${user.email} no tiene acceso. Contactá al administrador.`;
+    showScreen('deniedScreen');
+    return;
+  }
+  showScreen(null);
+  const loader = document.getElementById('loaderScreen');
+  if (loader) loader.style.display = 'flex';
+  setupUserUI(user);
+  await init();
+});
+
 async function init() {
   // Try cache first — show UI instantly
   const fromCache = loadFromCache();
@@ -1588,6 +1975,8 @@ async function init() {
     buildCards();
     buildPreciosGrid();
     buildHistorialFilters();
+    const fEl = document.getElementById('fecha-hdr');
+    if (fEl) fEl.textContent = now.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
     hideLoader();
     // Refresh in background silently
     refreshFromFirebase();
@@ -1622,10 +2011,13 @@ async function init() {
   buildCards();
   buildPreciosGrid();
   buildHistorialFilters();
+  // Set date header
+  const fechaEl = document.getElementById('fecha-hdr');
+  if (fechaEl) fechaEl.textContent = now.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
   hideLoader();
 }
 
-async function refreshFromFirebase() {
+async function refreshFromFirebase(silent = true) {
   try {
     const [pricesSnap, presSnap, hSnap] = await Promise.all([
       getDoc(doc(db,'data','prices')),
@@ -1642,14 +2034,21 @@ async function refreshFromFirebase() {
       loadInsumoCategories(),
     ]);
     saveToCache();
-    // Refresh UI silently if on recetas or precios
+    // Refresh current view
     const activeTab = document.querySelector('.nav-tab.active')?.dataset?.view;
     if (activeTab === 'recetas') renderRecetas();
+    if (activeTab === 'insumos') renderInsumos();
+    if (activeTab === 'historial') renderHistorial();
+    if (activeTab === 'precios') { buildPreciosGrid(); }
+    if (activeTab === 'pedidos') { buildCards(); buildFilterBar(); }
   } catch(e) {}
 }
 
-// SWITCH VIEW
-window.switchView = (view) => {
+// Auto-refresh cada 2 minutos en background
+setInterval(() => refreshFromFirebase(true), 2 * 60 * 1000);
+
+// SWITCH VIEW — refresca datos al cambiar de solapa
+window.switchView = async (view) => {
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.view===view));
   document.getElementById('viewPedidos').style.display  = view==='pedidos'  ?'block':'none';
   document.getElementById('viewPrecios').style.display  = view==='precios'  ?'block':'none';
@@ -1657,15 +2056,21 @@ window.switchView = (view) => {
   document.getElementById('viewRecetas').style.display  = view==='recetas'  ?'block':'none';
   document.getElementById('viewInsumos').style.display  = view==='insumos'  ?'block':'none';
   document.getElementById('summaryBar').style.display   = view==='pedidos'  ?''    :'none';
-  if(view==='historial') renderHistorial();
-  if(view==='recetas') renderRecetas();
-  if(view==='insumos') renderInsumos();
+  // Refresh data for the selected view
+  if (view==='historial') { await refreshFromFirebase(); renderHistorial(); }
+  else if (view==='recetas') { await refreshFromFirebase(); renderRecetas(); }
+  else if (view==='insumos') { await refreshFromFirebase(); renderInsumos(); }
+  else if (view==='precios') { await refreshFromFirebase(); buildPreciosGrid(); }
+  else if (view==='pedidos') { await refreshFromFirebase(); }
 };
 
 // FILTER BAR
 function buildFilterBar() {
   const fb=document.getElementById('filterBar');
+  // Keep only the "Todos" button
+  while (fb.children.length > 1) fb.removeChild(fb.lastChild);
   [...new Set(PROVIDERS.map(p=>p.cat))].forEach(cat=>{
+    if (fb.querySelector(`[data-filter="${cat}"]`)) return; // skip duplicates
     const btn=document.createElement('button');
     btn.className='filter-btn'; btn.dataset.filter=cat;
     btn.textContent=CATS[cat]||cat;
@@ -1681,6 +2086,7 @@ window.setFilter=(f)=>{
 // CARDS
 function buildCards() {
   const container=document.getElementById('cardsContainer');
+  container.innerHTML = '';
   PROVIDERS.forEach(p=>{
     const telChip=p.tel?`<a class="chip chip-tel" href="tel:+54${p.tel.replace(/\D/g,'')}">📞 ${fmtTel(p.tel)}</a>`:`<span class="chip chip-notel">Sin teléfono</span>`;
     const pagoChip=`<span class="${PAGO_CHIP[p.pago]}">${PAGO_LABEL[p.pago]}</span>`;
@@ -1926,10 +2332,11 @@ function renderPrecioRow(pid, provName, prod, i){
     </div>
     <div class="precio-row-bottom">
       <span class="pres-label">Presentación:</span>
-      <input class="pres-qty-inp" type="number" min="0" step="any" placeholder="Cant." value="${presQty}"
-        onchange="handlePresChange('${k}',this,'unit')" onfocus="this.select()">
-      <select class="pres-unit-sel" onchange="handlePresChange('${k}',this,'sel')">${unitOpts}</select>
-      ${costoBase ? `<span class="pres-costo-base" id="cbase-${k}">= ${costoBase}</span>` : `<span class="pres-costo-base" id="cbase-${k}"></span>`}
+      ${pres.qty && pres.unit
+        ? `<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:500">${pres.qty} ${pres.unit}</span>
+           <span class="pres-costo-base" id="cbase-${k}">${costoBase ? `= ${costoBase}` : ''}</span>
+           <span style="font-size:11px;color:var(--ink3)">· editá en Insumos</span>`
+        : `<span style="font-size:11px;color:var(--ink3);font-style:italic">Sin presentación — cargala en la solapa Insumos</span>`}
     </div>
   </div>`;
 }
@@ -2202,12 +2609,9 @@ init();
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    if (document.getElementById('recModalOverlay').classList.contains('open')) {
-      cerrarModalReceta();
-    }
-    if (document.getElementById('catPickerOverlay').classList.contains('open')) {
-      cerrarCatPicker();
-    }
+    if (document.getElementById('recModalOverlay').classList.contains('open')) cerrarModalReceta();
+    if (document.getElementById('catPickerOverlay').classList.contains('open')) cerrarCatPicker();
+    if (document.getElementById('nuevoInsumoOverlay')?.classList.contains('open')) cerrarModalNuevoInsumo();
   }
 });
 </script>
