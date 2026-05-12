@@ -1378,7 +1378,9 @@ window.closeHistModal=(e)=>{
 init();
 
 // Auto-refresh cada 2 minutos en background sin interrumpir lo que se está cargando
-setInterval(() => refreshFromFirebase(true), 2 * 60 * 1000); (e) => {
+setInterval(() => refreshFromFirebase(true), 2 * 60 * 1000);
+
+document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (document.getElementById('recModalOverlay').classList.contains('open')) cerrarModalReceta();
     if (document.getElementById('catPickerOverlay').classList.contains('open')) cerrarCatPicker();
